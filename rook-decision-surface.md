@@ -656,7 +656,8 @@ The dashed **Prototype** bar in the top bar is not part of the design.
 ## 13. Changelog
 
 - **v1, Nov 11, 2026:** first build of P0, P1 and P2 from brief v0.1; deployed to GitHub Pages on Rajat's instruction.
-  - P0 committed alone first (`4d3bd97`), then P1 and P2.
+  - P0 committed alone first (`4d3bd97`), then P1 and P2 (`d1b9707`).
+  - Deployed Nov 11, 2026 after Rajat's "Yes, publish it": public repo rajat-lt/rook-decision-surface-prototype, `gh-pages` at `86bc800`, bundle `index-BB20Ot6Z.js`, live at https://rajat-lt.github.io/rook-decision-surface-prototype/ and checked there: 12 routes, 0 console errors.
   - Verified in the browser on the dev server and on the production build (`vite preview`): every route renders with 0 console errors; the drawer's `slide-in` and the backdrop's `fade-in` run on the built site (PROTO-3); the policy, triage, decision and all eight prototype states were exercised with real clicks.
   - `npm run check` asserts the §5.6 story.
   - Fixes the checks caught: the flaky rule counted cross-version flips (D10); several panels showed an `LTFlash` at once in the Error state (D17); the agent-defect hand-off said "no credits" while its rerun spends them; an inferred install command was replaced with the README's own (C31).
