@@ -79,7 +79,7 @@ function OtherAgent({ route }) {
     <div className="page-col">
       <header className="agent-head"><div className="agent-head__title"><h1 className="h-title">{AGENT_NAME[route.agent]}</h1><span className="mono-muted">{route.agent}</span></div></header>
       <LTBlankSlate heading="The prototype's journeys run on Refund Desk"
-        description="This agent's row on Agents is real sample data; its pages hold no records here."
+        description="Its row on Agents is Rook sample data. Its pages are outside this prototype."
         primaryAction={<LTLink href={href.tab('overview')}>Open Refund Desk</LTLink>} />
     </div>
   )

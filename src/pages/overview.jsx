@@ -65,7 +65,7 @@ export function OverviewPage({ route }) {
 
   return (
     <AgentFrame route={route} actions={actions}>
-      {panel ? <section className="ov-head"><PanelState state={panel} object="version readiness" rows={4} onRetry={() => st.set({ proto: 'blocked' })} /></section> : (
+      {panel ? <section className="ov-head"><PanelState state={panel} object="version readiness" rows={4} lead onRetry={() => st.set({ proto: 'blocked' })} /></section> : (
         <section className="ov-head" aria-labelledby="verdict-line">
           <div className="ov-verdict">
             <h2 id="verdict-line" className="ov-verdict__line">{verdictLine(version, s)}</h2>

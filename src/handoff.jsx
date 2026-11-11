@@ -48,7 +48,7 @@ export const HANDOFF = {
   finishRun: run => ({
     action: 'Finish the run with collect and judge',
     what: `Continues ${run.name} in place: collects the evidence that landed after the agent replied, then judges every scenario.`,
-    credits: true, live: false, liveNote: 'The collect hook reads evidence; the agent itself is not called again.', writeTools: [], profile: run.profile, target: 'the same run',
+    credits: true, live: false, liveNote: 'The collect hook reads evidence the agent already left.', writeTools: [], profile: run.profile, target: 'the same run',
     commands: [...PRE, `rook run --run ${run.id} --phases collect,judge`],
     prompt: `Use the rook skill to continue run ${run.id} with only the collect and judge phases. Show the credits first. Do not start a new run.`,
     after: 'The same run gains its verdicts here, and Overview judges the version again.',
@@ -56,7 +56,7 @@ export const HANDOFF = {
   resume: run => ({
     action: 'Carry the interrupted run forward',
     what: `Creates a new run from ${run.name} and carries its compatible completed work forward.`,
-    warning: 'The target may already have changed state: an interrupted call can have moved money even with no response recorded.',
+    warning: 'The target may already have changed state: an interrupted call can move money before any response is recorded.',
     credits: true, live: true, writeTools: WRITE_TOOLS, profile: run.profile, target: 'refund-desk on staging',
     commands: [...PRE, `rook run --resume ${run.id}`],
     prompt: `Use the rook skill to resume run ${run.id} as a new run. Before anything runs, check whether the interrupted scenarios already changed the target's state, and show the plan and credits. Do not run paid operations until I confirm.`,
@@ -72,7 +72,7 @@ export const HANDOFF = {
   }),
   generate: ({ categories = [], total, focus }) => ({
     action: 'Generate scenarios for the gaps',
-    what: `Writes up to ${total} new scenarios${categories.length ? ` in ${categories.join(', ')}` : ''}, focused on the selection. Nothing runs against the agent.`,
+    what: `Writes up to ${total} new scenarios${categories.length ? ` in ${categories.join(', ')}` : ''}, focused on the selection. The agent stays untouched.`,
     credits: true, live: false, writeTools: [], profile: '–', target: 'local scenario files',
     commands: [...PRE, `rook generate${categories.length ? ` --category ${categories.join(',')}` : ''} --total ${total} -- "${focus}"`, 'rook scenarios list', 'rook sync'],
     prompt: `Use the rook skill to generate up to ${total} scenarios${categories.length ? ` in the ${categories.join(', ')} categories` : ''}, focused on: ${focus}. Show the plan and credits first, then let me review the new scenario files before you sync. Do not run them.`,
@@ -84,11 +84,11 @@ export const HANDOFF = {
     credits: false, live: false, writeTools: [], profile: '–', target: `the ${server} MCP server`,
     commands: [...PRE, `rook mcp get ${server}`, `rook mcp approve ${server} --origin discovered`, `rook mcp enable ${server}`],
     prompt: `Use the rook skill to show me what the ${server} MCP server runs, then approve and enable it once I confirm.`,
-    after: 'Setup shows the verifier as approved; rerun the scenarios whose checks need it.',
+    after: 'Setup shows the verifier as approved. Rerun the scenarios whose checks need it.',
   }),
   rca: run => ({
     action: 'Run root-cause analysis',
-    what: `Investigates each failure cluster in ${run.name} and writes a cause, a remedy and the files involved. The remedy is a hypothesis, not a verified fix.`,
+    what: `Investigates each failure cluster in ${run.name} and writes a cause, a remedy and the files involved. Treat the remedy as a hypothesis to test.`,
     credits: true, live: false, liveNote: 'It reads the run\'s records and the source, read-only.', writeTools: [], profile: run.profile, target: 'the run\'s records',
     commands: [...PRE, `rook report ${run.id} --rca`],
     prompt: `Use the rook skill to run root-cause analysis on run ${run.id}. Show the credits first; RCA cost depends on the number of clusters. Do not apply any remedy.`,
@@ -101,7 +101,7 @@ export const HANDOFF = {
     credits: false, live: false, writeTools: [], profile: '–', target: 'local scenario files',
     commands: [`# Find the project directory by its ID: <project-id> or <project-slug>--<project-id>`, `$EDITOR .testmuai/rook/projects/<project-dir>/agents/${A}/scenarios/${id}.yaml`, ...PRE, 'rook scenarios list', 'rook sync'],
     prompt: `Use the rook skill to find ${id}'s scenario file by the project ID, show me its acceptance criteria, and propose the change I describe. Do not weaken a business rule. After I approve the edit, run rook scenarios list and rook sync.`,
-    after: `Comparison shows ${id} as redefined on its next run, so the change never reads as a regression.`,
+    after: `Comparison shows ${id} as redefined on its next run, so the change stays out of the regression counts.`,
   }),
   bug: ({ runUrl, scenario, criterion, excerpt }) => ({
     action: 'Report the agent defect',
@@ -112,11 +112,11 @@ export const HANDOFF = {
     commands: [...PRE, `rook run --only ${scenario} --profile staging --concurrency 1 --name rerun-${scenario.toLowerCase()}`],
     commandsLabel: 'After the fix, run in the terminal',
     prompt: `Use the rook skill to rerun ${scenario} against the staging profile with concurrency 1 once the fix is merged. Show the plan and credits first. Do not run paid operations until I confirm.`,
-    after: `The rerun's verdict for ${scenario} shows here; Comparison marks it newly fixed if it passes.`,
+    after: `The rerun's verdict for ${scenario} shows here. Comparison marks it newly fixed if it passes.`,
   }),
   acceptRisk: () => ({
     action: 'Carry the accepted risk into sign-off',
-    what: 'Nothing runs. The note you wrote travels with this criterion into Record Decision, where the release can ship with this gap named.',
+    what: 'This step stays in the browser. The note you wrote travels with this criterion into Record Decision, where the release can ship with this gap named.',
     credits: false, live: false, writeTools: [], profile: '–', target: '–', commands: null,
     after: 'Record Decision lists this gap with your note under Ship with named gaps.',
   }),
@@ -133,7 +133,7 @@ export const HANDOFF = {
     what: 'Takes the agent from discovered to its first shared run, one command per step.',
     credits: true, live: true, writeTools: [], liveNote: 'Profile add and profile test call the agent.', profile: 'to be created', target: agent,
     steps: [
-      labels.includes('discovered only') && { label: 'Confirm it runs on its own', cmd: `rook agent use ${agent}`, note: 'A discovered subagent is not automatically an independently runnable target.' },
+      labels.includes('discovered only') && { label: 'Confirm it runs on its own', cmd: `rook agent use ${agent}`, note: 'Rook found it inside another agent. Check that it runs on its own.' },
       labels.includes('no-profile') && { label: 'Create and test a profile', cmd: 'rook profile add staging --command \'claude -p "{{goal}}"\'', note: 'Spends credits and calls the agent.' },
       labels.includes('no-profile') && { label: 'Test it with a reply-only goal', cmd: 'rook profile test staging --goal "Say hello and nothing else."' },
       labels.includes('no-scenarios') && { label: 'Generate and review scenarios', cmd: 'rook generate', note: 'Spends credits. Review the scenario files before you sync.' },

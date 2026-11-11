@@ -104,7 +104,7 @@ const STATES = [
 function PrototypeBar() {
   const st = useStore()
   return (
-    <div className="proto-bar" role="group" aria-label="Prototype controls, not part of the design">
+    <div className="proto-bar" role="group" aria-label="Prototype controls, outside the design">
       <span className="proto-bar__label">Prototype</span>
       <LTSelect leadingText="State" options={STATES} value={st.proto} onChange={v => st.set({ proto: v })}
         inputAriaLabel="Prototype state" anchorButtonSize="small" width={220} />

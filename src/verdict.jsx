@@ -5,7 +5,7 @@ import React from 'react'
 import {
   CircleCheck, CircleX, CircleQuestionMark, ShieldCheck, ShieldAlert, ShieldQuestionMark, CircleSlash, CircleDashed,
 } from 'lucide-react'
-import { cx, LTTag, LTTooltip, LTProgressBar, LTSkeletonBox, LTFlash, LTBlankSlate, LTButton, LTAvatar, LTLink } from './lt.jsx'
+import { cx, LTTag, LTTooltip, LTProgressBar, LTSkeletonBox, LTFlash, LTBlankSlate, LTButton, LTAvatar, LTLink, LTInlineMessage } from './lt.jsx'
 import { TOOLS, PEOPLE } from './data.js'
 import { absDate } from './format.js'
 import { href } from './router.js'
@@ -103,7 +103,7 @@ export function LedgerTile({ heading, sentence, segments, breakdown, to, linkLab
       {state === 'loading' ? (
         <><LTSkeletonBox width="80%" height={20} /><LTSkeletonBox className="sk-gap" width="100%" height={8} /></>
       ) : state === 'absent' ? (
-        <p className="ledger-tile__absent">–<span className="vh"> Not available</span></p>
+        <p className="ledger-tile__absent">–<span className="vh"> Unavailable</span></p>
       ) : (
         <>
           <p className="ledger-tile__sentence">{sentence}</p>
@@ -164,7 +164,7 @@ export function Person({ id, size = 20, nameOnly = false }) {
 }
 
 /* ---------- panel states: loading, error, empty (guidelines §1) ---------- */
-export function PanelState({ state, object, rows = 3, onRetry, empty }) {
+export function PanelState({ state, object, rows = 3, onRetry, empty, lead = false }) {
   if (state === 'loading') {
     return (
       <div className="panel-loading" aria-busy="true">
@@ -174,8 +174,11 @@ export function PanelState({ state, object, rows = 3, onRetry, empty }) {
     )
   }
   if (state === 'error') {
-    return <LTFlash variant="danger" text={`${object[0].toUpperCase()}${object.slice(1)} failed to load. Try again.`}
-      action={<LTButton variant="outline" size="small" label="Try Again" onClick={onRetry} />} />
+    const text = `${object[0].toUpperCase()}${object.slice(1)} failed to load. Try again.`
+    // One LTFlash per page (guidelines §1): the lead panel carries it, every
+    // other panel reports inline, beside what failed.
+    if (lead) return <LTFlash variant="danger" text={text} action={<LTButton variant="outline" size="small" label="Try Again" onClick={onRetry} />} />
+    return <LTInlineMessage variant="error">{text}</LTInlineMessage>
   }
   if (state === 'empty') return <LTBlankSlate {...empty} />
   return null

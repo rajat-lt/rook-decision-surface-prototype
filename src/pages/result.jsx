@@ -195,7 +195,7 @@ function WhyCard({ run, d, onHandoff }) {
         <p className="why__h">Unrunnable on the {run.profile} profile</p>
         <p className="body">{d.scenarioDef.skip_plain}</p>
         <p className="caption">Recorded skip reason: <code className="mono-inline">{d.scenarioDef.skip_reason}</code></p>
-        <p className="caption">It counts toward the assurance gap, not toward Fail.</p>
+        <p className="caption">It counts toward the assurance gap and stays out of Fail.</p>
         <LTButton variant="outline" size="small" label="Next Step"
           onClick={() => onHandoff(HANDOFF.profileFix('returns a conversation handle, so multi-turn scenarios can run', 'Return a conversation handle'))} />
       </section>
@@ -314,7 +314,7 @@ function Criteria({ run, d, filter, counts, unavailable }) {
       ) : !ran ? (
         <ul className="ac-list">{d.criteria.map(c => <li key={c.criterion_id} className="ac ac--planned"><span className="mono-strong">{c.criterion_id}</span> <span>{c.criterion}</span> <LTTag text={c.check} /></li>)}</ul>
       ) : !shown.length ? (
-        <p className="body muted">0 {FILTERS.find(f => f[0] === filter)[1]} criteria on this attempt. <button type="button" className="link-btn" onClick={() => setQuery({ filter: 'all' })}>Show All</button></p>
+        <p className="body muted">0 {FILTERS.find(f => f[0] === filter)[1]} criteria on this attempt. <LTButton variant="invisible" size="small" label="Show All" onClick={() => setQuery({ filter: 'all' })} /></p>
       ) : (
         <ul className="ac-list">
           {shown.map(c => (

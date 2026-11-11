@@ -394,6 +394,8 @@ Awkward rows: SC-008's title is over 40 characters; SC-004 C2's statement is ove
 
 Profiles: `staging` (hooks `execute`, `collect`; capabilities `calls: true`, `usage: false`, `multi_turn: false`; concurrency 1) and `staging-full` (all five hooks), shaped like `demo-normal.yaml`. Hook script paths are `[mock]`. Credits and durations are `[mock]`.
 
+Clusters on v10 release-gate: CL-01 `compromised` (SC-006), CL-02 `failed` (SC-010), CL-03 `unverifiable` (SC-009); on v11 release-gate: CL-01 `compromised` (SC-006), CL-02 `unverifiable` (SC-009); on v12 smoke: CL-01 `failed` (SC-008).
+
 Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criterion failed in F-004 (C2)`, the sample's own `why` shape; **CL-02** `unverifiable` (SC-009). SC-012 is in no cluster, so its result shows `Why it couldn't be verified` on its own (0.1.18).
 
 ### 5.5 The v12 story under Strict
@@ -413,7 +415,7 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 | # | Brief or Rook says | design-context or another source says | Built | Why |
 |---|---|---|---|---|
 | C1 | Verdicts Pass, Fail, Unable to Verify | No verdict vocabulary; `LTTestStatusLabel` is for test statuses | Custom verdict label (§4.13) | Gap G1 |
-| C2 | "Unable to Verify", "never run", "Not defined", `no-profile`, `no-scenarios`, "Why it couldn't be verified", "No artefacts recorded for this attempt" are product words | Text guide §1 rule 2: no negation | Product words kept | Flag for the status-name work |
+| C2 | "Unable to Verify", "never run" (and the tab **Never Run**), "Not defined", `no-profile`, `no-scenarios`, "Why it couldn't be verified", "No artefacts recorded for this attempt", "No findings recorded", the totals field `not_run` (shown as **Not run**), the bar's hover word "did not run", and the Agents filter values **No result** and **No profile** are product words | Text guide §1 rule 2: no negation | Product words kept | Flag for the status-name work. Every other string was scanned and reframed (Nov 11, 2026) |
 | C3 | Rook runs standalone today | Patterns assume the platform shell | Shell flag | Open question 10 |
 | C4 | Coding-agent prompts contain "Do not…" | No negation | Waived inside prompts | They instruct an agent; they are not UI copy |
 | C5 | Proof ledger, verdict label, results bar | Never hand-roll a component | Composites of LT parts | §3.5 |
@@ -436,7 +438,13 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 | C22 | Brief §7.4: the evidence opens in an `LTDrawer` | `ltmodal.md`: drawers never for heavy information | `LTDrawer` | The product already does this (web UI doc); brief wins |
 | C23 | `LTProgressBar` never focusable; `LTTooltip` never on non-interactive elements | Agents row bar shows counts on hover and focus (**exists**) | The row bar is focusable with its counts as its accessible name and tooltip | Product behaviour; brief §10 wants counts in text, so the screen-reader name carries them |
 | C24 | Brief §8.4: emails and paths shaped by the sample | `mock-data.md`: emails are `firstname.lastname@company.com` | The sample's `ada@example.com` | They are the sample's fixtures, part of the agent's domain |
-| C25 | Brief §7.1 row: "latest synced version" | Product row shows "recorded version" | `v12` and the sync date on hover | Same field |
+| C25 | Brief §7.1 row: "latest synced version" | Product row shows "recorded version" | `v12` | Same field |
+| C26 | Product breadcrumb uses the local ID (`refund-desk`), web UI doc | `ltbreadcrumbs.md`: crumb text matches the destination page's heading | The crumb reads **Refund Desk**, the Overview h1 | Guideline over product; recorded as a product delta |
+| C27 | Product Runs list has a **Pass** percentage column (web UI doc) | Brief §2: no scenario pass rate anywhere | Column dropped; the results bar and executed count stay | Brief wins; a caption on the page says why |
+| C28 | Brief §7.1: each readiness label opens a setup checklist | `lttag.md`: LTTag is read-only, never clickable | Labels stay read-only tags; a **Set Up Agent** button beside them opens the checklist | Tags never act |
+| C29 | The product keeps the result's evidence tab in the URL (web UI doc), so a link can open the drawer | `ltmodal.md`: do not deep-link straight into a modal on page load | `?tab=` opens the evidence drawer | It is a drawer over its own page, as the product does; recorded for Rajat |
+| C30 | Results doc: report coverage rows are framework IDs (`owasp:llm01`) | Brief §7.8: never type OWASP or ATLAS IDs or names from memory | Framework lenses show a named state; Rook's nine categories carry the page | No source maps refund-desk's patterns (G9) |
+| C31 | Rook's README lists three installs (Homebrew, shell installer, npm) | The Get started view (web UI doc) shows "the installation command" | `npm install -g @testmuai/rook@latest`, the README's first command | One command fits the view; the docs link carries the rest |
 
 ---
 
@@ -451,7 +459,7 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 - **G7** `platform-sidebar.md`'s list has no Agent Assurance entry.
 - **G8** No chart guidance beyond `LTProgressBar` (the trend and the security grid are composed from it).
 - **G9** No framework mapping (OWASP LLM, OWASP Agentic, MITRE ATLAS) for refund-desk's patterns in any source; the report's `redteam_coverage` rows are IDs such as `owasp:llm01` (results doc).
-- **G10** `LTInlineMessage` documents no text prop (children used, as in the project listing). `LTDrawer` documents `footerContent` and `showFooter`; the look-alike has no footer slot, so footers are composed in the body's end.
+- **G10** `LTInlineMessage` documents no text prop (children used, as in the project listing). (was: "the LTDrawer look-alike has no footer slot". Corrected Nov 11, 2026: the look-alike now takes the documented `footerContent` and `showFooter`.)
 - **G11** Look-alike props not in `data/components.json` (PROTO-5 audit, §7.1).
 
 ### 7.1 Prop audit (PROTO-5)
@@ -470,6 +478,11 @@ Props the look-alikes take that `COMPONENTS.md` does not document, all carried o
 | LTActionMenu | `onSelect`, `align` | `options` shape TBD |
 | LTSegmentedControl | `options[].count` | Shows counts inside segments (`All (4)`) |
 | LTCodeBlock | `theme` | The surface's own light and dark toggle |
+| LTCopyToClipboard | `size`, `dark` | Carried over: an icon size and the dark-surface colouring |
+| LTRadioGroup | `value` (controlled), `options[].caption` | The decision modal pre-selects by standing; captions explain each outcome |
+| LTDrawer | `footerContent`, `showFooter` | **Documented**, now used (G10 corrected: the footer is not composed) |
+| LTLink | `target`, `rel` | External links on the Get started view |
+| LTTable | `rowKey`, `caption`, `className`, column `render` | Carried over; `columns` and `data` shapes are TBD upstream |
 
 ---
 
@@ -492,6 +505,10 @@ Props the look-alikes take that `COMPONENTS.md` does not document, all carried o
 | D13 | Next Step for Agent defect copies a bug report and shows the rerun for after the fix | Creating a Jira issue (open question 7) |
 | D14 | Security defaults to Rook's nine categories; framework lenses wait for a mapping | Typing OWASP or ATLAS names from memory (forbidden by the brief) |
 | D15 | Prototype states rewrite the gating run (Meets policy: every result passes; Incomplete: unjudged after execute; Awaiting a shared run: only `--test` runs) | Separate fake agents per state |
+| D16 | Release policy edits a draft, saved with **Save Policy**; each rule is an `LTSelect`; a live preview shows what the draft does to v12 | Rules that apply on change: a policy decides releases, so it waits for an explicit save (`ltradiogroup.md`'s submit rule, applied to the form) |
+| D17 | In the Error state the page's lead panel carries the one `LTFlash`; every other panel reports inline (`LTInlineMessage` `error`) | One flash per panel: breaks hard rule "never more than one LTFlash" (caught on the built site, Nov 11, 2026) |
+| D18 | Triage adds a verdict filter (All, Fail, Unable to Verify) | Grouping only: the brief's acceptance check wants Unable to Verify filterable wherever verdicts appear |
+| D19 | **Last 7 days** in Triage counts runs by date; in the mock data it holds the same two v12 runs as **This version** | Faking an older failure to make the switch look different |
 
 ---
 
@@ -639,3 +656,7 @@ The dashed **Prototype** bar in the top bar is not part of the design.
 ## 13. Changelog
 
 - **v1, Nov 11, 2026:** first build of P0, P1 and P2 from brief v0.1; deployed to GitHub Pages on Rajat's instruction.
+  - P0 committed alone first (`4d3bd97`), then P1 and P2.
+  - Verified in the browser on the dev server and on the production build (`vite preview`): every route renders with 0 console errors; the drawer's `slide-in` and the backdrop's `fade-in` run on the built site (PROTO-3); the policy, triage, decision and all eight prototype states were exercised with real clicks.
+  - `npm run check` asserts the §5.6 story.
+  - Fixes the checks caught: the flaky rule counted cross-version flips (D10); several panels showed an `LTFlash` at once in the Error state (D17); the agent-defect hand-off said "no credits" while its rerun spends them; an inferred install command was replaced with the README's own (C31).
