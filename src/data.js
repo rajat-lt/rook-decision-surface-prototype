@@ -18,7 +18,9 @@ export const NOW = Date.parse('2026-11-11T11:00:00Z')
 
 /* ---------- project (mock-data.md § Projects; gap G4) ---------- */
 // `web-app` is a mock project ID; the hosted format is [TO FILL] (spec §3.3).
-export const PROJECT = { id: 'web-app', name: 'Web app', creator: 'gabbar', runs: 29 }
+// updated [mock]: the latest sync in the project, the v12 release-gate run (no
+// source names what a Rook project's last-updated date counts).
+export const PROJECT = { id: 'web-app', name: 'Web app', creator: 'gabbar', runs: 29, updated: '2026-11-10T09:14:03Z' }
 
 /* ---------- tools (refund-desk sample: .mcp.json, mcp/*.mjs, how-it-works.html) ---------- */
 export const TOOLS = {
@@ -555,21 +557,24 @@ export const SEED_TRIAGE = {
 /* ---------- other agents in the project (Rook's public samples; spec §5.1) ---------- */
 export const OTHER_AGENTS = [
   {
-    id: 'returns-refunds-assistant', name: 'Returns & Refunds Assistant', version: 'v4', features: 10, scenarios: 18,
-    profile: 'demo-normal', labels: [], lastRun: { at: '2026-09-29T12:13:14Z', passed: 14, failed: 1, unverifiable: 0, not_run: 0, skipped: 0 },
-    criteria: { verified: 17, total: 17 }, blockerCounts: { failed: 1, unverifiable: 0, unrunnable: 0 }, openTriage: 1,
+    // The sample's five runs (runs/*/run.yaml) and its latest, 2026-09-29T12-21-18Z:
+    // SC-110 passed, 1 criterion (16 Nov 2026; v1 showed 2026-09-29T12-13-14Z,
+    // an earlier run). Every sample run has test_mode: true (spec C40).
+    id: 'returns-refunds-assistant', name: 'Returns & Refunds Assistant', version: 'v4', features: 10, scenarios: 18, runs: 5,
+    profile: 'demo-normal', labels: [], lastRun: { at: '2026-09-29T12:21:26Z', passed: 1, failed: 0, unverifiable: 0, not_run: 0, skipped: 0 },
+    criteria: { verified: 1, total: 1 }, blockerCounts: { failed: 0, unverifiable: 0, unrunnable: 0 }, openTriage: 1,
   },
   {
-    id: 'support-triage-agent', name: 'triage-service', version: 'v2', features: 5, scenarios: 2,
+    id: 'support-triage-agent', name: 'triage-service', version: 'v2', features: 5, scenarios: 2, runs: 1,
     profile: 'local-triage', labels: [], lastRun: { at: '2026-09-11T08:02:00Z', passed: 1, failed: 0, unverifiable: 0, not_run: 0, skipped: 0 },
     criteria: { verified: 4, total: 4 }, blockerCounts: { failed: 0, unverifiable: 0, unrunnable: 0 }, openTriage: 0,
   },
   {
-    id: 'everyday-banking-assistant', name: 'Everyday Banking Assistant', version: 'v1', features: 8, scenarios: 12,
+    id: 'everyday-banking-assistant', name: 'Everyday Banking Assistant', version: 'v1', features: 8, scenarios: 12, runs: 0,
     profile: 'staging', labels: ['never run'], lastRun: null, criteria: null, blockerCounts: null, openTriage: 0,
   },
   {
-    id: 'order-lookup', name: 'order-lookup', version: 'v12', features: 1, scenarios: 0,
+    id: 'order-lookup', name: 'order-lookup', version: 'v12', features: 1, scenarios: 0, runs: 0,
     profile: null, labels: ['discovered only', 'no-profile', 'no-scenarios'], lastRun: null, criteria: null, blockerCounts: null, openTriage: 0,
   },
 ]

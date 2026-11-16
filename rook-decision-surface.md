@@ -5,6 +5,7 @@ A working prototype of Rook's hosted web UI (rook.lambdatest.com), redesigned so
 - **Owner:** Rajat Garg
 - **Built:** Nov 11, 2026 (v1); scope cut Nov 16, 2026 (v2)
 - **Brief:** `rook-ux/rook-decision-surface-build-brief.md` (v0.1, Nov 11, 2026; v0.3.1 from Nov 16, 2026)
+- **Change list:** Rajat's message of Nov 16, 2026 (§1.4): Projects, Agents, Runs, tab order and the scenario page.
 - **Change brief:** `rook-ux/rook-prototype-scope-cut.md` (Nov 16, 2026). It removes run comparison, Security, the release policy and Record Decision. Removed parts stay in this spec, each marked *Removed 16 Nov 2026 (Rajat: scope cut)* with the earlier wording under the note (REPO-3).
 - **Intent:** the journeys doc, *Rook: primary UX journeys and rationale* (Nov 11, 2026)
 - **Rook facts:** `rook-ux/00-rook-context-brief.md`, then the primary sources in §2
@@ -49,6 +50,14 @@ The brief is v0.1 and carries three gates. Each is recorded, not dropped.
 | (shell) | Projects | J7 | §5 | §4.0 | `#/projects` |
 
 Out of scope, as the brief says: any Run, Generate, Explore or Profile control; the local UI; Agent Testing; billing pages; real authentication.
+
+*Replaced 16 Nov 2026 (Rajat: v2 changes):* the Run detail row above. A run opens on its first scenario, and the scenario page carries the run's header and summary (§4.3, §4.4).
+
+### 1.4 Rajat's v2 change list (Nov 16, 2026)
+
+> few changes in our prototype: 1. read attached .md file. [...] 2. on projects page, show "last updated date" in meta data too. keep rest everything as it is. 3. on agents listing page, 1. do not use tabular format for showing data. use meta-data below the agent name. 2. remove agent name repetition from its meta data. add version, features & scenarios counts, total runs count, last run date time. show progress bar for the last run. 4. inside an agent, 1. keep overview page as it is for now. [...] 2. on runs page, 1. remove line "Normal runs synced from the terminal. Runs made with --test stay on the machine that ran them." and "The product's pass-percentage column stays out: [...]" 2. add search and filter functions. 3. get rid of tabular format of showing runs list. use the name & meta data format that we use everywhere. 4. as per primer, we sparingly use the tabular format. mostly the card format is used with name & meta data below it. 5. show the run result using the progress bar on the right-side of run card. 6. don't show credits in meta data on listing page. 7. show run status using the component before the run name. 8. properly show date, time value for each run. 3. order of tabs: overview, runs, coverage and then the rest. 4. use the Test Instance listing page inside a Test Run from Test Manager as example for showing the run details. [...] we take user directly to the page (…/runs/2026-11-10T09-14-03Z/s/SC-001) [...] 5. [...] instead of showing folders on the left pane, we can show the list of scenarios in that run with their meta data info. 6. [...] show the run info and its results in progress bar [...] on the top. 7. [...] show the scenario info meta data on top (like shown) and then add underlineNav component below it. tabs: Overview (which has 'Goal sent to the agent', 'What the agent did', 'What the agent said'), Acceptance Criteria (with counter), Evidences (which has request, response, verdict, artefacts all on the page itself and not on any side-drawer). 8. use light theme for codeblock component by-default. 9. for failed scenarios, give these actions on top-right: bug invisible icon button, reason button dropdown, assigned to button dropdown. user can either use these actions for all failed ACs in that failed scenario OR apply reason & assigned-to for each failed AC individually. 10. for each failed AC in a failed scenario, rename 'Next Step' to 'Confirm' and use primary button for that, not secondary button. 11. give bug invisible icon button for each failed AC in failed scenario. remove 'Note' text area field from it. 12. all Acceptance Criteria should be in expanded state. 13. if it's a failed scenario then show error banner above underlineNav.
+
+Read with the house patterns: `test-entity-listing.md` (§3.4 row anatomy, §3.5 the Test Instances header and summary card), `test-instance-details.md`, `project-listing.md`, `guidelines/ltunderlinenav.md`, `ltprogressbar.md`, `lticonbutton.md`, `ltbutton.md`, `mock-data.md` (status vocabulary, timestamps), `ux-persona.md`, and the status sheet in `statuslabel-review/`. Where his list and a house rule disagree, his list is built and the conflict recorded (C37 to C49).
 
 ---
 
@@ -135,8 +144,10 @@ Every fact below comes from one of these. Nothing else was used.
 #/p/web-app/agents
 #/p/web-app/a/refund-desk/overview?version=v12
 #/p/web-app/a/refund-desk/runs
-#/p/web-app/a/refund-desk/runs/{runId}
-#/p/web-app/a/refund-desk/runs/{runId}/s/{scenarioId}?filter=fail&tab=request
+#/p/web-app/a/refund-desk/runs/{runId}                       opens its first scenario (16 Nov 2026)
+#/p/web-app/a/refund-desk/runs/{runId}/s/{scenarioId}?view=criteria&filter=fail
+#/p/web-app/a/refund-desk/runs/{runId}/s/{scenarioId}?view=evidence&file=verdict
+#/p/web-app/a/refund-desk/runs/{runId}/s/{scenarioId}?filter=fail&tab=request   (v1; ?tab= now opens the Evidence tab)
 #/p/web-app/a/refund-desk/compare?base={runId}&head={runId}   removed 16 Nov 2026 (Rajat: scope cut)
 #/p/web-app/a/refund-desk/triage
 #/p/web-app/a/refund-desk/coverage
@@ -147,13 +158,13 @@ Every fact below comes from one of these. Nothing else was used.
 
 - *Removed 16 Nov 2026 (Rajat: scope cut).* The compare, security and release-policy routes. Old links land on the existing *This page is outside the prototype* state.
 
-- Agent tabs (`LTUnderlineNav`, one per page, top of page): **Overview, Runs, Triage, Coverage, Setup** [proposed] (16 Nov 2026). *Removed 16 Nov 2026 (Rajat: scope cut).* Security. Earlier: **Overview, Runs, Triage, Coverage, Security, Setup** [proposed]. Triage carries an `LTCounterLabel` with the untriaged count.
+- Agent tabs (`LTUnderlineNav`, one per page, top of page): **Overview, Runs, Coverage, Triage, Setup** (Rajat, 16 Nov 2026; C41). *Replaced 16 Nov 2026 (Rajat: v2 changes).* **Overview, Runs, Triage, Coverage, Setup** [proposed] (scope cut, 16 Nov 2026). *Removed 16 Nov 2026 (Rajat: scope cut).* Security. Earlier: **Overview, Runs, Triage, Coverage, Security, Setup** [proposed]. Triage carries an `LTCounterLabel` with the untriaged count.
 - `web-app` is a mock project ID `[mock]`; the hosted project ID format is `[TO FILL]`. Run IDs use the local run-directory format from the samples (`2026-11-10T09-14-03Z`); "local run IDs and hosted IDs can differ" (results doc), so the hosted form is `[TO FILL]`.
-- The criteria filter and the evidence drawer's tab live in the URL (`?filter=`, `?tab=`) [proposed], as the hosted UI already keeps scenario filters and the result tab in the URL.
+- The scenario page's tab, criteria filter and evidence file live in the URL (`?view=`, `?filter=`, `?file=`) [proposed], as the hosted UI already keeps scenario filters and the result tab in the URL (16 Nov 2026). *Replaced 16 Nov 2026 (Rajat: v2 changes).* The criteria filter and the evidence drawer's tab live in the URL (`?filter=`, `?tab=`) [proposed].
 
 ### 3.4 Layout
 
-- 1512 default, `min-width: 1280px`. Single-column pages (Overview, Run detail, Triage, Comparison, Coverage, Security, Setup, Agents, Projects, Release policy; Comparison, Security and Release policy removed 16 Nov 2026) centre at 1232px with 112px margins. The scenario result has a list pane, so it runs full width: list pane 400px, centre flexes.
+- 1512 default, `min-width: 1280px`. Single-column pages (Overview, Run detail, Triage, Comparison, Coverage, Security, Setup, Agents, Projects, Release policy; Comparison, Security and Release policy removed 16 Nov 2026) centre at 1232px with 112px margins. The scenario result has a list pane, so it runs full width: the run's header and summary across the top, then the scenario pane at 320px (the folder pane's width, `test-entity-listing.md` §6) and the scenario flexing (16 Nov 2026). *Replaced 16 Nov 2026 (Rajat: v2 changes).* list pane 400px, centre flexes.
 - Drawers 640px (hand-off, evidence, plan, definitions) or 480px (setup checklist). Modal 480px (the only modal, Record Decision, removed 16 Nov 2026).
 - Spacing in multiples of 4. Every colour, radius and shadow from `tokens.css`.
 
@@ -175,10 +186,17 @@ Every list, table and panel has empty, loading and error states. The prototype b
 
 ### 4.0 Projects (shell) — exists (CHANGELOG 0.1.18)
 
-- `patterns/project-listing.md` frame: `Projects` + `LTCounterLabel`, `Search projects`, `Owners` filter (outline button with caret). One row: **Web app** (link), agent count, run count, creator initials.
+- `patterns/project-listing.md` frame: `Projects` + `LTCounterLabel`, `Search projects`, `Owners` filter (outline button with caret). One row: **Web app** (link), agent count, run count, `Updated 1 day ago` (added 16 Nov 2026, Rajat; relative under 30 days and no time, as `mock-data.md` asks of a project's last-updated date; the value is `[mock]`, the latest sync in the project), creator initials.
 - **Empty organization** state: the product's **Get started** view (web UI doc): install command in a code block, documentation link, **Schedule Demo**, **Upgrade Now** (orange). Exists; built as named in the doc.
 
 ### 4.1 Agents (P2)
+
+**From 16 Nov 2026 (Rajat):** rows, no table (`test-entity-listing.md` §3.4, rows in one bordered container; C43).
+- Row: the last-outcome mark (**exists**), then the display name (link) with its open-blockers tag and readiness labels beside it, then the meta line, then the last run's results bar on the right with `{executed} of {planned} executed` beside it (counts on hover and focus, **exists**). Agents with no run show **Set Up Agent** there when they carry readiness labels.
+- Meta line: `v12 · 6 features · 14 scenarios · 6 runs · Last run Nov 10, 2026, 09:14 AM · 39 of 42 criteria verified · 3 untriaged`. The local ID is gone (it repeated the name). The last run is the agent's latest run of any kind (D24) in `MMM DD, YYYY, HH:MM AM/PM` (C37). Verification and untriaged stay from v1.
+- Other agents: run counts from the samples (returns-refunds-assistant 5, `runs/*`), else `[mock]`. Returns-refunds-assistant's last run is its latest, `2026-09-29T12-21-18Z` (SC-110, 1 criterion, Pass), not `12-13-14Z` as v1 showed (C40).
+
+*Replaced 16 Nov 2026 (Rajat: v2 changes).* The v1 structure below:
 
 - **Header:** `Agents` + `LTCounterLabel`. `Search agents`. Filters `Status` (Pass, Fail, Unable to Verify, No result) and `Profile` (each profile, plus No profile) as outline buttons with counter and caret, opening an `LTActionMenu` with single selection (**exist**, 0.1.18).
 - **Row** (`test-entity-listing.md` anatomy, rows in one bordered container):
@@ -210,7 +228,16 @@ Top to bottom:
 
 **States (prototype bar, 16 Nov 2026):** With blockers (default), Clear, Incomplete run, Awaiting a shared run, Loading, Error. The Clear state passes every result but still shows 2 blockers, the untested F-002 and F-003 (C33, open). *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier: Blocked (default), Meets policy, Awaiting a policy, Incomplete run, Awaiting a shared run, Loading, Error. The policy also changes the standing live: Permissive turns v12 into `Blocked by 1`.
 
-### 4.3 Run detail (P1)
+### 4.3 Runs and Run detail (P1)
+
+**From 16 Nov 2026 (Rajat):** the Runs page lists runs as rows (C43), and **the Run detail page is removed** (C49). A run's name, and `#/…/runs/{runId}`, open its first scenario (D20), where the run's header and summary sit on top (§4.4).
+- **Runs header:** `Runs` + counter. `Search by run name or ID`, then **Status** (Completed, Stopped), **Version** and **Started by**, as outline buttons with counter and caret (D25). Empty after filtering: `0 matching runs` · `Change or clear the search and filters to see more runs.`
+- **Row:** run status (`LTTestStatusLabel`, icon only, its word as the accessible name: `completed`, or `stopped` for a halted run, C39), the run name (link), the meta line `{run ID} · v12 · profile staging · Nov 10, 2026, 09:14 AM by Gabbar Singh · 5m 41s` (plus `10 scenarios skipped by the plan` when the plan skipped some), and on the right `12 of 13 executed` with the results bar. No credits on the row.
+- **Removed** from the page: the captions `Normal runs synced from the terminal. Runs made with --test stay on the machine that ran them.` and `The product's pass-percentage column stays out: the sources disagree on its formula. Each bar shows its counts on hover and focus.` (C27 still holds: no pass-percentage column.)
+- **Moved** to the scenario page's run header: run name, ID, version, the pinned profile drawer, **View Plan**, concurrency, duration, credits, the stopped-run card.
+- **Removed with the page:** the run proof ledger, Failure clusters analysis, Failures by tool, the scenario table and Not executed. Each scenario's banner keeps its cluster and why (D21).
+
+*Replaced 16 Nov 2026 (Rajat: v2 changes).* The Run detail page as built before:
 
 - **Pinned header:** run name (h1), hosted run ID `[TO FILL format]` shown as the run ID, completion state (`completed`, `halted`), agent version, profile `staging` with **Pinned Profile** (the run's revision, a drawer with its YAML) and **Current Profile** (link to Setup), **View Plan** (drawer, `run.yaml` in `LTCodeBlock`), concurrency, credits, duration. *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier: gate policy used [proposed].
 - **Run proof ledger** (§4.14), scoped to this run: Verdicts, Verification coverage, Behaviour coverage (16 Nov 2026, matching build brief v0.3.1 §8.2). *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier third tile: **Attacks in this run**, `{n} of {m} attack scenarios reached` · `{d} defended · {c} compromised`.
@@ -221,6 +248,20 @@ Top to bottom:
 - *Removed 16 Nov 2026 (Rajat: scope cut).* **Compare** opens §4.6 with this run as head.
 
 ### 4.4 Scenario result (P0, the workhorse)
+
+**From 16 Nov 2026 (Rajat),** modelled on Test Manager's Test Instances listing inside a Test Run (`test-entity-listing.md` §3.5). Full width, top to bottom:
+
+1. **Run header** (D23): h1 run name with **Copy run name**; **View Plan** on the right. Meta: run status label with its word (`Completed`, `Stopped`), `Gabbar Singh started this run on Nov 10, 2026, 09:14 AM`, run ID, version, `profile staging, as pinned` (drawer), concurrency, duration, credits. A stopped run adds its card (`This run stopped before it finished` or `Judge has yet to run`, the reason, **Next Step**).
+2. **Run summary card:** `12 of 13` · `planned scenarios executed` in place of the pattern's pass rate (brief §2: no pass rate); a legend, one entry per verdict with its icon (`1 Fail`, `2 Unable to Verify`, `9 Pass`, then `1 Unrunnable`, `Not run` or `Awaiting judge` when present), `10 scenarios skipped by the plan` when the plan skipped some; an `LTProgressBar` `large` over the planned scenarios.
+3. **Scenario pane** (320px, in place of the folders): `Scenarios` + counter, `Search scenarios`, a **Verdict** filter (Every verdict, Pass, Fail, Unable to Verify, Unrunnable or not run). Row: the verdict icon (its words as the accessible name, `Compromised` adds the shield), the title on 2 lines, the meta `SC-004 · F-004 · functional · negative`, and `1 of 1 untriaged` when a criterion needs triage. Selected: orange bar plus grey fill. Switching scenarios keeps the open tab.
+4. **Scenario header:** h2 title; top right, when a criterion is Fail or Unable to Verify: a **bug** invisible icon button (only with a Fail; copies a bug report for every failed criterion), **Reason** and **Assigned to** button menus that apply to every open criterion at once, with a toast (D22, D27). Meta: verdict label (and `Compromised` with the flag), ID, feature link, class, category, latency, turns, `Attempt 1`, **View Scenario at Run Time**.
+5. **Banner** (`LTFlash`, above the tabs; D21): `danger` for Fail (`Why it failed:` cluster, why, summary) and Compromised (`Why it was compromised:`, with the attack's evidence); `warning` for Unable to Verify (`Why it couldn't be verified:`, reason code, meaning, the fix, **Next Step**); `default` for unrunnable, not run and awaiting judge, each with its **Next Step**. Pass shows none. The **Run Root-Cause Analysis** button and **See This Cluster on the Run Page** are gone with the run page (§2.2: 0.1.20 also drops the RCA hint from the web app).
+6. **`LTUnderlineNav`** (the page's one primary tab layer, at the top of the scenario pane, as `ltunderlinenav.md` allows on master-detail pages): **Overview**, **Acceptance criteria** (counter: every criterion), **Evidence** (C46).
+   - **Overview:** Goal sent to the agent, What the agent did (with **View hooks.json**), What the agent said.
+   - **Acceptance criteria:** the verdict filter, opening on **All** (D11 superseded); every card expanded, no **Expand All** (C47). A Fail or Unable to Verify card ends in its footer: **Reason** and **Assigned to** (`LTSelect`), a **bug** invisible icon button on a failed criterion, and **Confirm** (primary; opens the hand-off for the reason, C44). The **Note** field is gone (C45).
+   - **Evidence:** `LTTabNav` **Request**, **Response**, **Verdict**, **Artefacts** below the underline nav, the files on the page in `LTCodeBlock`, light by default (C38, C48). Artefacts list with **View** in place.
+
+*Replaced 16 Nov 2026 (Rajat: v2 changes).* The page as built before:
 
 Full width.
 
@@ -475,12 +516,12 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 | C19 | Brief: `Awaiting scenarios` | Product shows `none` | `Awaiting scenarios` | Text guide §3: empty values name the state |
 | C20 | Brief catalogue: `rook mcp approve <server>` | Skill `mcp.md`: `rook mcp approve <name> --origin discovered`; `.mcp.json` servers have origin `discovered` | `--origin discovered` added | refund-desk's servers come from `.mcp.json` |
 | C21 | Brief §8.1: `CircleHelp`, `ShieldQuestion` | In lucide-react 1.58.0 both are deprecated aliases of `CircleQuestionMark` and `ShieldQuestionMark` (same component) | Canonical names | Same glyph; aliases may be dropped |
-| C22 | Brief §7.4: the evidence opens in an `LTDrawer` | `ltmodal.md`: drawers never for heavy information | `LTDrawer` | The product already does this (web UI doc); brief wins |
+| C22 | *Superseded 16 Nov 2026 by C48.* Brief §7.4: the evidence opens in an `LTDrawer` | `ltmodal.md`: drawers never for heavy information | `LTDrawer` | The product already does this (web UI doc); brief wins |
 | C23 | `LTProgressBar` never focusable; `LTTooltip` never on non-interactive elements | Agents row bar shows counts on hover and focus (**exists**) | The row bar is focusable with its counts as its accessible name and tooltip | Product behaviour; brief §10 wants counts in text, so the screen-reader name carries them |
 | C24 | Brief §8.4: emails and paths shaped by the sample | `mock-data.md`: emails are `firstname.lastname@company.com` | The sample's `ada@example.com` | They are the sample's fixtures, part of the agent's domain |
 | C25 | Brief §7.1 row: "latest synced version" | Product row shows "recorded version" | `v12` | Same field |
 | C26 | Product breadcrumb uses the local ID (`refund-desk`), web UI doc | `ltbreadcrumbs.md`: crumb text matches the destination page's heading | The crumb reads **Refund Desk**, the Overview h1 | Guideline over product; recorded as a product delta |
-| C27 | Product Runs list has a **Pass** percentage column (web UI doc) | Brief §2: no scenario pass rate anywhere | Column dropped; the results bar and executed count stay | Brief wins; a caption on the page says why |
+| C27 | Product Runs list has a **Pass** percentage column (web UI doc) | Brief §2: no scenario pass rate anywhere | Column dropped; the results bar and executed count stay | Brief wins; a caption on the page said why until 16 Nov 2026, when Rajat removed it |
 | C28 | Brief §7.1: each readiness label opens a setup checklist | `lttag.md`: LTTag is read-only, never clickable | Labels stay read-only tags; a **Set Up Agent** button beside them opens the checklist | Tags never act |
 | C29 | The product keeps the result's evidence tab in the URL (web UI doc), so a link can open the drawer | `ltmodal.md`: do not deep-link straight into a modal on page load | `?tab=` opens the evidence drawer | It is a drawer over its own page, as the product does; recorded for Rajat |
 | C30 | *Removed 16 Nov 2026 with Security.* Results doc: report coverage rows are framework IDs (`owasp:llm01`) | Brief §7.8: never type OWASP or ATLAS IDs or names from memory | Framework lenses show a named state; Rook's nine categories carry the page | No source maps refund-desk's patterns (G9) |
@@ -489,7 +530,20 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 | C33 | Scope cut §3.4: every untested feature is a blocker; §3.6: the Clear state passes every result | Build brief v0.3.1 §7.2: a Clear state reading `Every judged criterion on v12 passed` | The Clear state shows 2 blockers (F-002 awaits scenarios, F-003 awaits a run) | Showing Clear would need invented scenarios for F-002 and F-003, or untested features left out of readiness. Rajat to pick (open question 24) |
 | C34 | Scope cut §3.9 and build brief §7.2 example: `v12 has 1 failed, 2 unverifiable and 1 unrunnable scenario, and 2 untested features` | Text guide §2: serial comma in every list of three or more (house decision); the scope cut also says to keep it | `v12 has 1 failed, 2 unverifiable, and 1 unrunnable scenario, and 2 untested features` | The guide rule the brief names wins over its example. The counts match; the noun takes the last count's number, as the example does |
 | C35 | Build brief v0.3.1 §6.3 and §6.4: 4 runs on v12, none needed on older versions; SC-006 compromised in the v12 `smoke` run | Scope cut §1 and §3.7 (Rajat's ruling): keep the v10, v11 and v12 data; v11's release-gate run with the compromised SC-006 stays | Kept as built: 6 runs over v10 to v12, SC-006 compromised on v11 | Rajat's own ruling in the change brief; following §6.3 would rebuild the data. Rajat to confirm (open question 25) |
-| C36 | Scope cut §3.13 acceptRisk: "Your note stays with this criterion" | The note is set in the triage footer (§4.4) | Copy as briefed | Holds while the note field stays |
+| C36 | Scope cut §3.13 acceptRisk: "Your note stays with this criterion" | The note is set in the triage footer (§4.4) | Copy as briefed, then changed the same day (C45) | Held until the note field went |
+| C37 | Rajat: show each run's date and time, and the agent's last run date and time | `mock-data.md`: relative under 30 days, absolute beyond; time only where it matters | `MMM DD, YYYY, HH:MM AM/PM` on Runs rows, the Agents meta and the run header | An execution timestamp is where `mock-data.md` says time matters; the relative rule loses to his explicit ask. Overview's pinned line keeps its date (C12) |
+| C38 | Rajat: code blocks light by default | `guidelines/README.md` §1: code surfaces default dark | `LTCodeBlock` defaults to `light` everywhere in the prototype (hand-off, evidence, Setup, Get started) | His instruction; the guideline should change if this holds |
+| C39 | Rook's run state is `halted` (headless `halted: true`, reasons such as `interrupted`, `skill headless-contract.md`, CHANGELOG) | `mock-data.md` status vocabulary has `completed` and `stopped`, no `halted`; the persona: "Stops the user started are neutral, never red"; the status sheet in `statuslabel-review/` draws Completed as a double check and Stopped as a square | `completed` and `stopped` (both halted runs here were stopped by their user: Esc, `--phases`), both neutral grey | A system stop (budget, `agent_unreachable`, `runner_error`) would be Aborted; none is in the data. The sheet ships Stopped dark red; its proposal is grey, which the persona rule decides |
+| C40 | v1 spec §5.1: returns-refunds-assistant's last run is `12-13-14Z` (14 passed, 1 failed) | The sample has 5 runs; the latest is `12-21-18Z` (SC-110 Pass). Every sample run has `test_mode: true`, and 0.1.20 says "Pass rates, trends, last run and run counts still leave test runs out" | Last run `12-21-18Z`, 5 runs, 0 blockers | The row is sample data, shown as runs. A strict 0.1.20 reading would show 0 runs and no last run (open question 23) |
+| C41 | Build brief v0.3.1 §7.2 and scope cut §3.3: tabs Overview, Runs, Triage, Coverage, Setup | Rajat, 16 Nov 2026: "overview, runs, coverage and then the rest" | Overview, Runs, Coverage, Triage, Setup | His later instruction |
+| C42 | Rajat names the triage fields **Reason** and **Assigned to** | Build brief §8.5: disposition and owner; Rook's own `unverifiable_reason` and the cards' **Why unverifiable** use "reason" for something else | Reason and Assigned to on the scenario page and on Triage (`Set Reason`, columns Reason and Assigned to); the data keeps `disposition` and `owner` | One term per concept (text guide §6) across both pages. The collision with reason codes stays visible on Unable to Verify cards |
+| C43 | Rajat: "card format [...] with name & meta data below it", no table | `test-entity-listing.md` §5 delta 2, resolved 4 Sep 2026: "rows everywhere", in one bordered container, not separate cards | Rows in one bordered container with the name, its tags and the meta line below | His "card" is read as the house row anatomy; separate bordered cards are what the pattern retired |
+| C44 | Rajat: rename **Next Step** to **Confirm**, primary | `ltbutton.md`: primary is "rarely more than one per page"; text guide §3: a button names its action | **Confirm**, primary, opening the hand-off for the chosen reason (the old Next Step's action) | SC-009 shows two primaries (two Unable to Verify criteria). Whether Confirm should instead commit a draft reason is open question 26 |
+| C45 | Rajat: remove the **Note** field | Scope cut §3.9 and acceptance check 8, and build brief v0.3.1 §7.2: an Accepted risk shows its note on Overview | Note removed. Overview still shows a saved note; none can be written now. The acceptRisk hand-off now reads "The reason stays with this criterion [...]" and "Overview lists this blocker as an accepted risk." | His later instruction; open question 27 asks whether Accepted risk keeps a note |
+| C46 | Rajat: tabs `Acceptance Criteria`, `Evidences` | Text guide §3: navigation items in sentence case (`ltunderlinenav.md` notes the casing is open); "evidence" is uncountable, and the product's label is **Evidence** | `Acceptance criteria`, `Evidence` | Guide and product wording; the counter stays |
+| C47 | Rajat: every acceptance criterion expanded | Web UI doc (**exists**): passing cards start collapsed, with **Expand all** | All expanded, no toggle; the filter opens on All | His instruction; recorded as a product delta |
+| C48 | Rajat: request, response, verdict and artefacts on the page, no drawer | Web UI doc (**exists**) and brief §7.4: an Evidence drawer (C22) | On the page, under an `LTTabNav` below the scenario's underline nav | C22's drawer reading is superseded |
+| C49 | Build brief v0.3.1 §7.3: Run detail (P1); scope cut §3.10 edits it | Rajat, 16 Nov 2026: the run detail page "is not needed" | Removed after commit 1 applied §3.10; its header moved to the scenario page | Failure clusters analysis and Failures by tool exist on the product's run page and now have no home here (open question 29) |
 
 ---
 
@@ -506,6 +560,7 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 - **G9** (Security removed 16 Nov 2026.) No framework mapping (OWASP LLM, OWASP Agentic, MITRE ATLAS) for refund-desk's patterns in any source; the report's `redteam_coverage` rows are IDs such as `owasp:llm01` (results doc).
 - **G10** `LTInlineMessage` documents no text prop (children used, as in the project listing). (was: "the LTDrawer look-alike has no footer slot". Corrected Nov 11, 2026: the look-alike now takes the documented `footerContent` and `showFooter`.)
 - **G11** Look-alike props not in `data/components.json` (PROTO-5 audit, §7.1).
+- **G12** No height for `LTProgressBar` `large` in design-context; 10px assumed from Primer's large bar (16 Nov 2026). The look-alike's `completed` and `stopped` glyphs are drawn from the status sheet's images; `COMPONENTS.md` has no drawing.
 
 ### 7.1 Prop audit (PROTO-5)
 
@@ -545,7 +600,7 @@ Props the look-alikes take that `COMPONENTS.md` does not document, all carried o
 | D8 | Dispositions sit beside the verdict, attributed and dated; the verdict label never changes | Recolouring an accepted risk |
 | D9 | Verification coverage counts criteria on executed scenarios; unrunnable scenarios show in the Verdicts tile | Counting their criteria (39 of 45): the brief's numbers say 42 |
 | D10 | *Removed 16 Nov 2026 (Rajat: scope cut).* Flaky: the verdict flips between runs of **one agent version** on an unchanged snapshot, across all runs of the two compared versions; it overrides the other buckets | Two runs only: a flip inside v12 would hide. Flips across versions: they are the agent changing, so SC-004 and SC-006 would read as flaky (caught by `npm run check`, Nov 11, 2026) |
-| D11 | The criteria filter opens on Fail, then Unable to Verify, then All, and the URL keeps it | Always All |
+| D11 | *Superseded 16 Nov 2026 (C47): every card is expanded, so the filter opens on All.* The criteria filter opens on Fail, then Unable to Verify, then All, and the URL keeps it | Always All |
 | D12 | What the agent did sits above What the agent said ("effects before words") | The reply first, as chat logs read |
 | D13 | Next Step for Agent defect copies a bug report and shows the rerun for after the fix | Creating a Jira issue (open question 7) |
 | D14 | *Removed 16 Nov 2026 (Rajat: scope cut).* Security defaults to Rook's nine categories; framework lenses wait for a mapping | Typing OWASP or ATLAS names from memory (forbidden by the brief) |
@@ -553,6 +608,14 @@ Props the look-alikes take that `COMPONENTS.md` does not document, all carried o
 | D16 | *Removed 16 Nov 2026 (Rajat: scope cut).* Release policy edits a draft, saved with **Save Policy**; each rule is an `LTSelect`; a live preview shows what the draft does to v12 | Rules that apply on change: a policy decides releases, so it waits for an explicit save (`ltradiogroup.md`'s submit rule, applied to the form) |
 | D17 | In the Error state the page's lead panel carries the one `LTFlash`; every other panel reports inline (`LTInlineMessage` `error`) | One flash per panel: breaks hard rule "never more than one LTFlash" (caught on the built site, Nov 11, 2026) |
 | D18 | Triage adds a verdict filter (All, Fail, Unable to Verify) | Grouping only: the brief's acceptance check wants Unable to Verify filterable wherever verdicts appear |
+| D20 | A run opens on its first scenario in run order (16 Nov 2026) | Its first failing scenario: faster to triage, but the list would open mid-way and a passing run would need a second rule |
+| D21 | The banner slot above the tabs takes every non-passing result: `danger` for Fail and Compromised, `warning` for Unable to Verify, `default` for unrunnable, not run and awaiting judge. It carries what the why card said | Banner on Fail only, as asked: the why card for the others would need a second home on the page |
+| D22 | Unable to Verify criteria get the same footer (Reason, Assigned to, Confirm) and their scenarios the same header menus; the bug button shows only where a criterion failed | Fail only, as Rajat's list says: Unable to Verify would keep Disposition, Owner and Note, two names for one field |
+| D23 | The run header and summary span both panes, above the scenario pane | Inside the right pane: the run is the page's parent, and the pattern puts it in the page header slot |
+| D24 | The Agents row's last run is the agent's latest run of any kind; Overview still judges a version on its gating run (D1) | The gating run: "Last run" would then name an older run whenever a smoke run follows |
+| D25 | Runs filters: Status, Version, Started by, mapping Test Runs' Status, Tags and Creator | Tags: Rook runs have none |
+| D26 | The scenario pane filters by verdict | Search alone: the brief asks for Unable to Verify to be filterable wherever verdicts appear |
+| D27 | The header's Reason and Assigned to are action menus that set every open criterion at once, with a toast; each footer's selects show its own value | Selects showing a shared value: they need a third state for mixed values |
 | D19 | **Last 7 days** in Triage counts runs by date; in the mock data it holds the same two v12 runs as **This version** | Faking an older failure to make the switch look different |
 
 ---
@@ -690,6 +753,10 @@ New, from this build:
 | 22 | Pinned dates: absolute (brief) or relative (guide)? (C12) |
 | 23 | Rook 0.1.20 splits the web app's Runs page into **Recorded runs** and **Test runs**, and sends test-run summaries to the cloud. Should the prototype add the tabs and drop *Runs made with --test stay on the machine that ran them*? (§2.2) |
 | 24 | The Clear state still shows the 2 untested features as blockers. Invent scenarios for F-002 and F-003 in that state, leave untested features out of readiness, or keep it? (C33) |
+| 26 | Should **Confirm** commit a draft reason and assignee (selects held until Confirm), rather than open the hand-off for the reason? (C44) |
+| 27 | Keep a note for **Accepted risk** only, so Overview can show why the risk was accepted? (C45) |
+| 28 | Should Unable to Verify scenarios carry the same header menus, footer and banner as failed ones? Built that way (D21, D22) |
+| 29 | Failure clusters analysis and Failures by tool exist on the product's run page. With the run page gone, do they move to the run header, or leave the prototype? (C49) |
 | 25 | Keep the v10 to v12 runs and v11's compromised SC-006 (scope cut), or rebuild to build brief §6.3's 4 runs on v12 with SC-006 compromised in v12 smoke? (C35) |
 
 ---
@@ -729,3 +796,4 @@ The dashed **Prototype** bar in the top bar is not part of the design.
   - `npm run check` asserts the §5.6 story.
   - Fixes the checks caught: the flaky rule counted cross-version flips (D10); several panels showed an `LTFlash` at once in the Error state (D17); the agent-defect hand-off said "no credits" while its rerun spends them; an inferred install command was replaced with the README's own (C31).
 - **v2 scope cut, Nov 16, 2026:** applied `rook-ux/rook-prototype-scope-cut.md` on branch `scope-cut-2026-11-16`, against build brief v0.3.1. Removed run comparison, Security, the release policy and Record Decision (deleted `compare.jsx`, `security.jsx`, `policy.jsx`, `decision.jsx`); readiness replaces standing, with one default blocker ranking (C32); Overview has 3 ledger tiles and no primary action; Agents shows Open blockers; the run ledger's third tile is Behaviour coverage; storage key `v2`. `npm run check` found the Clear state still has 2 blockers (C33), recorded rather than hidden. Not pushed or deployed: Rajat reviews first.
+- **v2 changes, Nov 16, 2026:** Rajat's list (§1.4), as a second commit on `scope-cut-2026-11-16`. Projects shows `Updated`; Agents and Runs are house rows with search, filters, status, date and time and the results bar; tabs Overview, Runs, Coverage, Triage, Setup; the run detail page is gone and a run opens on its first scenario, laid out as the Test Instances listing (run header and summary, scenario pane, scenario meta, banner, Overview, Acceptance criteria and Evidence tabs, evidence on the page); light code blocks; Reason, Assigned to, bug and Confirm on open criteria; Note removed; every criterion expanded. Conflicts C37 to C49, decisions D20 to D27, gap G12, open questions 26 to 29. Verified on the dev server and the production build. Not pushed or deployed.

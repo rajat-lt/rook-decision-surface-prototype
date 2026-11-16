@@ -57,6 +57,32 @@ export function ResultLabel({ d, size }) {
   )
 }
 
+/** Icon only, its words as the accessible name: the status slot of a row
+    (test-entity-listing.md §3.4 slot 2). Compromised adds its shield. */
+export function VerdictMark({ d }) {
+  const v = VERDICT[verdictOf(d)] ?? VERDICT['Not run']
+  const Icon = v.icon
+  const words = `${v.word}${d?.compromised ? ', Compromised' : ''}`
+  return (
+    <span className="vmark" role="img" aria-label={words}>
+      <Icon size={16} aria-hidden="true" className={`vmark__icon verdict--${v.tone}`} />
+      {d?.compromised && <ShieldAlert size={16} aria-hidden="true" className="vmark__icon verdict--danger" />}
+    </span>
+  )
+}
+
+/** A legend entry: icon, count and word, never a bare dot (test-entity-listing.md §3.5). */
+export function VerdictCount({ verdict, n }) {
+  const v = VERDICT[verdict]
+  const Icon = v.icon
+  return (
+    <span className={cx('verdict', `verdict--${v.tone}`, 'verdict--small', 'vcount')}>
+      <Icon size={14} aria-hidden="true" className="verdict__icon" />
+      <span className="vcount__text">{n} {v.word}</span>
+    </span>
+  )
+}
+
 /* ---------- results bar ----------
    LTProgressBar segments, failures first (web UI doc, Agents rows). With
    `hover` it is the Agents row's bar: counts on hover and focus, and the

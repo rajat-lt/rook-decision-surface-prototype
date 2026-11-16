@@ -103,12 +103,13 @@ export const HANDOFF = {
     prompt: `Use the rook skill to find ${id}'s scenario file by the project ID, show me its acceptance criteria, and propose the change I describe. Do not weaken a business rule. After I approve the edit, run rook scenarios list and rook sync.`,
     after: 'The edited definition applies from the next run. Earlier runs keep the snapshot they ran with.',
   }),
-  bug: ({ runUrl, scenario, criterion, excerpt }) => ({
+  // One criterion, or every failed criterion of a scenario (16 Nov 2026).
+  bug: ({ runUrl, scenario, criterion, criteria = [criterion] }) => ({
     action: 'Report the agent defect',
     what: 'Copies a bug report with what an engineer needs to reproduce it. Rerun the scenario once the agent is fixed.',
     credits: true, live: true, liveNote: 'The rerun does, after the fix. Copying the report does neither.', writeTools: writeToolsFor([scenario]),
     profile: 'staging', target: 'refund-desk on staging',
-    bugReport: [`Run: ${runUrl}`, `Scenario: ${scenario}`, `Criterion: ${criterion.criterion_id} · ${criterion.criterion}`, `Expected: ${criterion.expected}`, `Achieved: ${criterion.achieved}`, `Evidence: ${excerpt}`].join('\n'),
+    bugReport: [`Run: ${runUrl}`, `Scenario: ${scenario}`, ...criteria.flatMap(c => ['', `Criterion: ${c.criterion_id} · ${c.criterion}`, `Expected: ${c.expected}`, `Achieved: ${c.achieved}`, `Evidence: ${c.evidence}`])].join('\n'),
     commands: [...PRE, `rook run --only ${scenario} --profile staging --concurrency 1 --name rerun-${scenario.toLowerCase()}`],
     commandsLabel: 'After the fix, run in the terminal',
     prompt: `Use the rook skill to rerun ${scenario} against the staging profile with concurrency 1 once the fix is merged. Show the plan and credits first. Do not run paid operations until I confirm.`,
@@ -116,9 +117,9 @@ export const HANDOFF = {
   }),
   acceptRisk: () => ({
     action: 'Keep the accepted risk in view',
-    what: 'This step stays in the browser. Your note stays with this criterion and shows beside its blocker on Overview.',
+    what: 'This step stays in the browser. The reason stays with this criterion and shows beside its blocker on Overview.',
     credits: false, live: false, writeTools: [], profile: '–', target: '–', commands: null,
-    after: 'Overview lists this blocker with your note.',
+    after: 'Overview lists this blocker as an accepted risk.',
   }),
   firstSharedRun: version => ({
     action: `Make the first shared run on ${version}`,
@@ -195,7 +196,7 @@ function HandoffDrawer({ h, onClose }) {
             <section className="handoff__sec">
               <h3 className="sec-h">Bug report</h3>
               <LTCodeBlock title="Report text" headerActions={
-                <LTCopyToClipboard textToCopy={h.bugReport} copyAriaLabel="Copy bug report" copiedAriaLabel="Bug report copied" dark size="small" />
+                <LTCopyToClipboard textToCopy={h.bugReport} copyAriaLabel="Copy bug report" copiedAriaLabel="Bug report copied" size="small" />
               }><pre className="code-pre">{h.bugReport}</pre></LTCodeBlock>
               <LTButton variant="outline" size="medium" label="Copy Bug Report" className="handoff__copy"
                 onClick={async () => { await copyText(h.bugReport); announce('Bug report copied') }} />
@@ -209,7 +210,7 @@ function HandoffDrawer({ h, onClose }) {
                 {h.steps.map((st, i) => (
                   <li key={i} className="checklist__item">
                     <p className="checklist__label">{st.label}</p>
-                    <LTCodeBlock headerActions={<LTCopyToClipboard textToCopy={st.cmd} copyAriaLabel={`Copy step ${i + 1}`} copiedAriaLabel="Command copied" dark size="small" />}>
+                    <LTCodeBlock headerActions={<LTCopyToClipboard textToCopy={st.cmd} copyAriaLabel={`Copy step ${i + 1}`} copiedAriaLabel="Command copied" size="small" />}>
                       <pre className="code-pre">{st.cmd}</pre>
                     </LTCodeBlock>
                     {st.note && <p className="caption">{st.note}</p>}
@@ -223,7 +224,7 @@ function HandoffDrawer({ h, onClose }) {
             <section className="handoff__sec">
               <h3 className="sec-h">{h.commandsLabel ?? 'Run in the terminal'}</h3>
               <LTCodeBlock title="Terminal" headerActions={
-                <LTCopyToClipboard textToCopy={cmdText} copyAriaLabel="Copy commands" copiedAriaLabel="Commands copied" dark size="small" />
+                <LTCopyToClipboard textToCopy={cmdText} copyAriaLabel="Copy commands" copiedAriaLabel="Commands copied" size="small" />
               }><pre className="code-pre">{h.commands.map((c, i) => <span key={i} className={c.startsWith('#') ? 'tok-comment' : undefined}>{c}{'\n'}</span>)}</pre></LTCodeBlock>
             </section>
           )}
@@ -232,7 +233,7 @@ function HandoffDrawer({ h, onClose }) {
             <section className="handoff__sec">
               <h3 className="sec-h">Or ask your coding agent</h3>
               <LTCodeBlock title="Prompt" headerActions={
-                <LTCopyToClipboard textToCopy={h.prompt} copyAriaLabel="Copy prompt" copiedAriaLabel="Prompt copied" dark size="small" />
+                <LTCopyToClipboard textToCopy={h.prompt} copyAriaLabel="Copy prompt" copiedAriaLabel="Prompt copied" size="small" />
               }><pre className="code-pre">{h.prompt}</pre></LTCodeBlock>
             </section>
           )}

@@ -10,6 +10,7 @@ import { useStore } from '../store.jsx'
 import { PROJECT, PEOPLE, OTHER_AGENTS } from '../data.js'
 import { PanelState } from '../verdict.jsx'
 import { href } from '../router.js'
+import { relOrOn } from '../format.js'
 
 export function ProjectsPage() {
   const st = useStore()
@@ -41,7 +42,11 @@ export function ProjectsPage() {
             <li key={p.id} className="row">
               <div className="row__main">
                 <LTLink href={href.agents(p.id)} className="row__title">{p.name}</LTLink>
-                <p className="row__meta"><span>{OTHER_AGENTS.length + 1} agents</span><span className="meta-dot" aria-hidden="true">·</span><span>{p.runs} runs</span></p>
+                <p className="row__meta">
+                  <span>{OTHER_AGENTS.length + 1} agents</span><span className="meta-dot" aria-hidden="true">·</span>
+                  <span>{p.runs} runs</span><span className="meta-dot" aria-hidden="true">·</span>
+                  <span>Updated {relOrOn(p.updated)}</span>
+                </p>
               </div>
               <LTAvatar initials={creator.initials} name={`Created by ${creator.name}`} size={24} />
             </li>
@@ -61,7 +66,7 @@ function GetStarted({ onStub }) {
         <p className="caption">Agent Assurance · Rook</p>
         <h1 className="h-title">Get Started</h1>
         <p className="body">Rook tests agents that act. It runs scenarios against a staging agent from your terminal, and the results land here for your team.</p>
-        <LTCodeBlock title="Install" headerActions={<LTCopyToClipboard textToCopy={cmd} copyAriaLabel="Copy install command" copiedAriaLabel="Install command copied" dark size="small" />}>
+        <LTCodeBlock title="Install" headerActions={<LTCopyToClipboard textToCopy={cmd} copyAriaLabel="Copy install command" copiedAriaLabel="Install command copied" size="small" />}>
           <pre className="code-pre">{cmd}</pre>
         </LTCodeBlock>
         <div className="getstarted__actions">

@@ -8,11 +8,11 @@ import { HandoffProvider } from './handoff.jsx'
 import { PlatformSidebar, TopBar } from './shell.jsx'
 import { useRoute, href } from './router.js'
 import { RUN, SCENARIO, OTHER_AGENTS } from './data.js'
-import { runsFor, triageItems } from './model.js'
+import { runsFor, runFor, triageItems } from './model.js'
 import { ProjectsPage } from './pages/projects.jsx'
 import { AgentsPage } from './pages/agents.jsx'
 import { OverviewPage } from './pages/overview.jsx'
-import { RunsPage, RunPage } from './pages/runs.jsx'
+import { RunsPage, runHref } from './pages/runs.jsx'
 import { ResultPage } from './pages/result.jsx'
 import { TriagePage } from './pages/triage.jsx'
 import { CoveragePage } from './pages/coverage.jsx'
@@ -34,7 +34,8 @@ export function useUntriaged() {
 export function AgentFrame({ route, actions, children, current }) {
   const untriaged = useUntriaged()
   const tab = current ?? route.page
-  const navs = ['overview', 'runs', 'triage', 'coverage', 'setup'].map(id => ({
+  // Order: Overview, Runs, Coverage, then the rest (Rajat, 16 Nov 2026; spec C41).
+  const navs = ['overview', 'runs', 'coverage', 'triage', 'setup'].map(id => ({
     id, label: TAB_LABEL[id], href: href.tab(id), counter: id === 'triage' && untriaged ? untriaged : null,
   }))
   return (
@@ -62,7 +63,7 @@ function crumbsFor(route) {
   if (route.page === 'run' || route.page === 'result') {
     c.push({ label: 'Runs', href: href.tab('runs') })
     const run = RUN[route.run]
-    c.push({ label: run?.name ?? route.run, href: href.run(route.run), current: route.page === 'run' })
+    c.push({ label: run?.name ?? route.run, href: run ? runHref(run) : href.run(route.run), current: route.page === 'run' })
     if (route.page === 'result') c.push({ label: SCENARIO[route.scenario]?.title ?? route.scenario, href: href.result(route.run, route.scenario), current: true })
     return c
   }
@@ -81,6 +82,16 @@ function OtherAgent({ route }) {
   )
 }
 
+/** A run opens on its first scenario; the run detail page is gone (Rajat,
+    16 Nov 2026). Replace, so Back skips the bare run URL. */
+function RunRedirect({ route }) {
+  const st = useStore()
+  const run = runFor(route.run, st.proto)
+  useEffect(() => { if (run) window.location.replace(runHref(run, route.q)) }, [run, route.q])
+  if (run) return null
+  return <div className="page-col"><LTBlankSlate heading="This run is outside the prototype" primaryAction={<LTLink href={href.tab('runs')}>Open Runs</LTLink>} /></div>
+}
+
 function Routes() {
   const route = useRoute()
   const st = useStore()
@@ -97,7 +108,7 @@ function Routes() {
   else if (otherAgent) page = <OtherAgent route={route} />
   else if (route.page === 'overview') page = <OverviewPage route={route} />
   else if (route.page === 'runs') page = <RunsPage route={route} />
-  else if (route.page === 'run') page = <RunPage route={route} />
+  else if (route.page === 'run') page = <RunRedirect route={route} />
   else if (route.page === 'result') page = <ResultPage route={route} />
   else if (route.page === 'triage') page = <TriagePage route={route} />
   else if (route.page === 'coverage') page = <CoveragePage route={route} />

@@ -202,7 +202,7 @@ function BlockerRow({ b, rank, version, triage, onHandoff }) {
         {disp?.disposition === 'Accepted risk' && disp.note && <p className="caption blocker__note">{disp.note}</p>}
       </div>
       <div className="blocker__actions">
-        {d && d.status && <LTLink href={href.result(run.id, d.scenario, { filter })}>View Evidence</LTLink>}
+        {d && d.status && <LTLink href={href.result(run.id, d.scenario, { view: 'criteria', filter })}>View Evidence</LTLink>}
         {next}
       </div>
     </li>

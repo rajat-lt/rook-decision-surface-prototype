@@ -1,6 +1,8 @@
 // Triage (brief §7.5, spec §4.5) [proposed]: what is still unexplained, and
 // who owns it? Failed, Unable to Verify and compromised criteria across runs,
-// grouped by cluster, tool or feature. A disposition never changes a verdict.
+// grouped by cluster, tool or feature. A reason never changes a verdict.
+// Disposition reads Reason and Owner reads Assigned to from 16 Nov 2026
+// (Rajat's names on the scenario page; spec C42).
 import React, { useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { cx, LTButton, LTCheckbox, LTLink, LTBlankSlate, LTCounterLabel } from '../lt.jsx'
@@ -67,7 +69,7 @@ export function TriagePage({ route }) {
           <LTSegmentedControl ariaLabel="Group by" variant="small" selectedValue={group} onChange={setGroup} options={GROUPS} />
         </div>
       </div>
-      <p className="caption">{scope === 'version' ? 'Every run on v12' : 'Runs from the last 7 days'}: {runs.map(r => r.name).join(', ') || '0 runs'}. A disposition sits beside the verdict and leaves it as Rook judged it.</p>
+      <p className="caption">{scope === 'version' ? 'Every run on v12' : 'Runs from the last 7 days'}: {runs.map(r => r.name).join(', ') || '0 runs'}. A reason sits beside the verdict and leaves it as Rook judged it.</p>
 
       {panel ? <PanelState state={panel} object="the triage queue" rows={6} lead /> : !items.length && all.length ? (
         <p className="body muted">0 criteria with this verdict.</p>
@@ -81,11 +83,11 @@ export function TriagePage({ route }) {
           <div className="bulk" role="toolbar" aria-label="Bulk triage">
             <LTCheckbox checked={allOn} indeterminate={!allOn && sel.size > 0} ariaLabel="Select every criterion"
               onChange={() => setSel(allOn ? new Set() : new Set(items.map(i => i.key)))} />
-            <span className="caption">{sel.size ? `${sel.size} selected` : 'Select criteria to assign or set a disposition'}</span>
+            <span className="caption">{sel.size ? `${sel.size} selected` : 'Select criteria to assign or set a reason'}</span>
             <LTActionMenu customAnchor={anchor('Assign')} ariaLabel="Assign to" width={300}
               options={Object.values(PEOPLE).map(p => ({ value: p.id, label: p.name, description: p.role }))}
               onSelect={o => sel.size && bulk({ owner: o.value }, `assigned to ${PEOPLE[o.value].name}`)} />
-            <LTActionMenu customAnchor={anchor('Set Disposition')} ariaLabel="Set disposition" width={240}
+            <LTActionMenu customAnchor={anchor('Set Reason')} ariaLabel="Set reason" width={240}
               options={DISPOSITIONS.map(d => ({ value: d, label: d }))}
               onSelect={o => sel.size && bulk({ disposition: o.value }, `set to ${o.value}`)} />
           </div>
@@ -100,7 +102,7 @@ export function TriagePage({ route }) {
                 <colgroup><col style={{ width: 40 }} /><col /><col style={{ width: 104 }} /><col style={{ width: 152 }} /><col style={{ width: 200 }} /><col style={{ width: 128 }} /><col style={{ width: 200 }} /><col style={{ width: 72 }} /></colgroup>
                 <thead><tr>
                   <th scope="col"><span className="vh">Select</span></th><th scope="col">Criterion</th><th scope="col">Scenario</th><th scope="col">Verdict</th>
-                  <th scope="col">Cause</th><th scope="col">Disposition</th><th scope="col">Owner</th><th scope="col">Age</th>
+                  <th scope="col">Cause</th><th scope="col">Reason</th><th scope="col">Assigned to</th><th scope="col">Age</th>
                 </tr></thead>
                 <tbody>
                   {list.map(i => {
@@ -116,7 +118,7 @@ export function TriagePage({ route }) {
                           </button>
                           {exp && <p className="caption tq__detail">Achieved: {i.criterion.achieved}</p>}
                         </td>
-                        <td><LTLink href={href.result(i.run.id, i.detail.scenario, { filter: i.criterion.status === 'Fail' ? 'fail' : 'uv' })} className="mono-link">{i.detail.scenario}</LTLink><br /><span className="caption">{i.run.name}</span></td>
+                        <td><LTLink href={href.result(i.run.id, i.detail.scenario, { view: 'criteria', filter: i.criterion.status === 'Fail' ? 'fail' : 'uv' })} className="mono-link">{i.detail.scenario}</LTLink><br /><span className="caption">{i.run.name}</span></td>
                         <td><VerdictLabel verdict={i.criterion.status} size="small" /></td>
                         <td className="caption">{i.cause}</td>
                         <td>{i.disposition?.disposition ? <span>{i.disposition.disposition}</span> : <span className="triage-state">Untriaged</span>}</td>

@@ -292,11 +292,16 @@ export function LTToken({ text, fullText, onRemove, removeLabel = 'Remove', remo
    = blue partial ring, still, as the component draws it (question 82).
    `bare` is the component's bg?=No (the glyph without its circle), held
    per surface. With text it is the header pill (showStatusText). */
-const STATUS_WORD = { passed: 'Passed', failed: 'Failed', queued: 'Queued', running: 'Running' }
+const STATUS_WORD = { passed: 'Passed', failed: 'Failed', queued: 'Queued', running: 'Running', completed: 'Completed', stopped: 'Stopped' }
+/* completed and stopped (16 Nov 2026): glyphs from the status sheet in
+   statuslabel-review (Completed a double check, Stopped a square). Both are
+   neutral grey: Completed as the sheet ships it, Stopped by the persona's
+   "Stops the user started are neutral, never red" (the sheet's proposal).
+   The shipped component's exact drawing is not in COMPONENTS.md. */
 export function StatusGlyph({ status, size = 16, bare = false, onEmphasis = false }) {
   const fg = onEmphasis ? 'var(--fg-on-emphasis)'
     : status === 'passed' ? 'var(--success-fg)' : status === 'failed' ? 'var(--danger-fg)'
-      : status === 'running' ? 'var(--accent-fg)' : 'var(--done-fg)'
+      : status === 'running' ? 'var(--accent-fg)' : status === 'completed' || status === 'stopped' ? 'var(--neutral-emphasis)' : 'var(--done-fg)'
   const ink = bare ? fg : 'var(--fg-on-emphasis)'
   const glyph = status === 'passed'
     ? <path d="M4.6 8.3l2.2 2.2 4.6-4.8" fill="none" stroke={ink} strokeWidth={bare ? 1.8 : 1.6} strokeLinecap="round" strokeLinejoin="round" />
@@ -304,7 +309,11 @@ export function StatusGlyph({ status, size = 16, bare = false, onEmphasis = fals
       ? <path d="M5.4 5.4l5.2 5.2M10.6 5.4l-5.2 5.2" fill="none" stroke={ink} strokeWidth={bare ? 1.8 : 1.6} strokeLinecap="round" />
       : status === 'running'
         ? <path d={bare ? 'M8 2.5a5.5 5.5 0 1 1-5.5 5.5' : 'M8 4a4 4 0 1 1-4 4'} fill="none" stroke={ink} strokeWidth={bare ? 1.8 : 1.6} strokeLinecap="round" />
-        : <path d="M5 6h6M5 8h6M5 10h6" fill="none" stroke={ink} strokeWidth="1.4" strokeLinecap="round" />
+        : status === 'completed'
+          ? <path d="M3.4 8.4l2 2 3.6-4M7.6 10.1l.3.3 3.6-4" fill="none" stroke={ink} strokeWidth={bare ? 1.6 : 1.4} strokeLinecap="round" strokeLinejoin="round" />
+          : status === 'stopped'
+            ? <rect x="5.25" y="5.25" width="5.5" height="5.5" rx="0.75" fill="none" stroke={ink} strokeWidth={bare ? 1.6 : 1.4} />
+            : <path d="M5 6h6M5 8h6M5 10h6" fill="none" stroke={ink} strokeWidth="1.4" strokeLinecap="round" />
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" className="status-glyph">
       {!bare && <circle cx="8" cy="8" r="8" fill={fg} />}
@@ -461,9 +470,10 @@ export function LTTextarea({ label, caption, value, onChange, placeholder, rows 
 }
 
 /* ---------- LTCodeBlock ----------
-   Code surfaces carry their own theme and default to dark
-   (guidelines/README.md §1). headerActions is the toolbar slot. */
-export function LTCodeBlock({ title, headerActions, theme = 'dark', children, className, bodyRef }) {
+   Code surfaces carry their own theme. guidelines/README.md §1 defaults them
+   to dark; this prototype defaults to light on Rajat's instruction of 16 Nov
+   2026 (spec C38). headerActions is the toolbar slot. */
+export function LTCodeBlock({ title, headerActions, theme = 'light', children, className, bodyRef }) {
   return (
     <div className={cx('lt-code', `lt-code--${theme}`, className)}>
       {(title || headerActions) && (
