@@ -1,18 +1,19 @@
-// App state: the prototype bar's choices, the release policy, triage
-// dispositions and decision records. Kept in this browser's local storage as
-// a per-viewer convenience (spec §11); every read and write is guarded.
+// App state: the prototype bar's choices and the triage dispositions. Kept
+// in this browser's local storage as a per-viewer convenience (spec §11);
+// every read and write is guarded. The key moved to v2 on 16 Nov 2026 (scope
+// cut), so a saved policy and decisions from v1 stop loading.
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { SEED_TRIAGE, SEED_DECISIONS, NOW } from './data.js'
-import { STRICT } from './model.js'
+import { SEED_TRIAGE, NOW } from './data.js'
 
-const KEY = 'rook-decision-surface:v1'
-const DEFAULTS = { proto: 'blocked', shell: 'platform', viewer: 'ritika', policy: STRICT, triage: SEED_TRIAGE, decisions: SEED_DECISIONS }
+const KEY = 'rook-decision-surface:v2'
+const DEFAULTS = { proto: 'blocked', shell: 'platform', viewer: 'ritika', triage: SEED_TRIAGE }
 
 function load() {
   try {
     const raw = window.localStorage.getItem(KEY)
     if (!raw) return DEFAULTS
-    return { ...DEFAULTS, ...JSON.parse(raw) }
+    const saved = JSON.parse(raw)
+    return { ...DEFAULTS, shell: saved.shell ?? DEFAULTS.shell, viewer: saved.viewer ?? DEFAULTS.viewer, triage: saved.triage ?? DEFAULTS.triage }
   } catch { return DEFAULTS }
 }
 
@@ -20,21 +21,23 @@ const Ctx = createContext(null)
 export function StoreProvider({ children }) {
   const [s, setS] = useState(load)
   useEffect(() => {
-    try { window.localStorage.setItem(KEY, JSON.stringify({ shell: s.shell, viewer: s.viewer, policy: s.policy, triage: s.triage, decisions: s.decisions })) } catch { /* storage blocked: state lives in memory */ }
+    try { window.localStorage.setItem(KEY, JSON.stringify({ shell: s.shell, viewer: s.viewer, triage: s.triage })) } catch { /* storage blocked: state lives in memory */ }
   }, [s])
   const set = useCallback(patch => setS(prev => ({ ...prev, ...(typeof patch === 'function' ? patch(prev) : patch) })), [])
   const api = useMemo(() => ({
     ...s,
-    // "Awaiting a policy" is a prototype state: it hides the policy without losing it.
-    effectivePolicy: s.proto === 'no-policy' ? null : s.policy,
     set,
     setTriage: (key, patch) => set(prev => {
       const cur = prev.triage[key] ?? {}
       return { triage: { ...prev.triage, [key]: { ...cur, ...patch, setBy: prev.viewer, setAt: new Date(nowMs()).toISOString() } } }
     }),
-    recordDecision: (version, d) => set(prev => ({
-      decisions: { ...prev.decisions, [version]: [{ ...d, by: prev.viewer, at: new Date(nowMs()).toISOString() }, ...(prev.decisions[version] ?? [])] },
-    })),
+    /** One patch on several criteria at once (bulk triage), attributed once. */
+    setTriageMany: (keys, patch) => set(prev => {
+      const at = new Date(nowMs()).toISOString()
+      const next = { ...prev.triage }
+      for (const k of keys) next[k] = { ...(next[k] ?? {}), ...patch, setBy: prev.viewer, setAt: at }
+      return { triage: next }
+    }),
     reset: () => { try { window.localStorage.removeItem(KEY) } catch { /* ignore */ } setS({ ...DEFAULTS, shell: s.shell }) },
   }), [s, set])
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>

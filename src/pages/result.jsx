@@ -448,7 +448,7 @@ function SnapshotBody({ run, d }) {
   const changed = s.revisions && revisionAt(s, run.created) !== s.revisions.length - 1
   return (
     <div className="snap">
-      {changed && <LTInlineMessage variant="info">The definition changed after this run. Comparisons mark {s.id} as redefined.</LTInlineMessage>}
+      {changed && <LTInlineMessage variant="info">The definition changed after this run. This page shows the definition the run used.</LTInlineMessage>}
       <dl className="facts">
         <dt>Feature</dt><dd>{s.feature} · {FEATURE[s.feature].name}</dd>
         <dt>Class</dt><dd>{s.class}</dd>

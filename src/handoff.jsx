@@ -35,7 +35,7 @@ export const HANDOFF = {
     credits: true, live: true, writeTools: writeToolsFor(ids), profile: 'staging', target: 'refund-desk on staging',
     commands: [...PRE, `rook run --only ${ids.join(',')} --profile staging --concurrency 1 --name ${name}`],
     prompt: `Use the rook skill to rerun ${ids.join(' and ')} against the staging profile with concurrency 1, named ${name}. Show the plan and credits first. Do not run paid operations until I confirm.`,
-    after: `A new run named ${name} appears under Runs once it syncs. Open it to see the new verdicts, then compare it with this one.`,
+    after: `A new run named ${name} appears under Runs once it syncs. Open it to see the new verdicts.`,
   }),
   profileFix: (whatMissing, reason) => ({
     action: reason ?? 'Fix what the profile returns',
@@ -101,7 +101,7 @@ export const HANDOFF = {
     credits: false, live: false, writeTools: [], profile: '–', target: 'local scenario files',
     commands: [`# Find the project directory by its ID: <project-id> or <project-slug>--<project-id>`, `$EDITOR .testmuai/rook/projects/<project-dir>/agents/${A}/scenarios/${id}.yaml`, ...PRE, 'rook scenarios list', 'rook sync'],
     prompt: `Use the rook skill to find ${id}'s scenario file by the project ID, show me its acceptance criteria, and propose the change I describe. Do not weaken a business rule. After I approve the edit, run rook scenarios list and rook sync.`,
-    after: `Comparison shows ${id} as redefined on its next run, so the change stays out of the regression counts.`,
+    after: 'The edited definition applies from the next run. Earlier runs keep the snapshot they ran with.',
   }),
   bug: ({ runUrl, scenario, criterion, excerpt }) => ({
     action: 'Report the agent defect',
@@ -112,13 +112,13 @@ export const HANDOFF = {
     commands: [...PRE, `rook run --only ${scenario} --profile staging --concurrency 1 --name rerun-${scenario.toLowerCase()}`],
     commandsLabel: 'After the fix, run in the terminal',
     prompt: `Use the rook skill to rerun ${scenario} against the staging profile with concurrency 1 once the fix is merged. Show the plan and credits first. Do not run paid operations until I confirm.`,
-    after: `The rerun's verdict for ${scenario} shows here. Comparison marks it newly fixed if it passes.`,
+    after: `The rerun's verdict for ${scenario} shows under Runs once it syncs.`,
   }),
   acceptRisk: () => ({
-    action: 'Carry the accepted risk into sign-off',
-    what: 'This step stays in the browser. The note you wrote travels with this criterion into Record Decision, where the release can ship with this gap named.',
+    action: 'Keep the accepted risk in view',
+    what: 'This step stays in the browser. Your note stays with this criterion and shows beside its blocker on Overview.',
     credits: false, live: false, writeTools: [], profile: '–', target: '–', commands: null,
-    after: 'Record Decision lists this gap with your note under Ship with named gaps.',
+    after: 'Overview lists this blocker with your note.',
   }),
   firstSharedRun: version => ({
     action: `Make the first shared run on ${version}`,

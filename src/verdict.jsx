@@ -3,7 +3,7 @@
 // the tool access badge. Each is built from LT look-alikes and tokens.
 import React from 'react'
 import {
-  CircleCheck, CircleX, CircleQuestionMark, ShieldCheck, ShieldAlert, ShieldQuestionMark, CircleSlash, CircleDashed,
+  CircleCheck, CircleX, CircleQuestionMark, ShieldAlert, CircleSlash, CircleDashed,
 } from 'lucide-react'
 import { cx, LTTag, LTTooltip, LTProgressBar, LTSkeletonBox, LTFlash, LTBlankSlate, LTButton, LTAvatar, LTLink, LTInlineMessage } from './lt.jsx'
 import { TOOLS, PEOPLE } from './data.js'
@@ -17,9 +17,7 @@ const VERDICT = {
   Pass: { icon: CircleCheck, tone: 'success', word: 'Pass' },
   Fail: { icon: CircleX, tone: 'danger', word: 'Fail' },
   'Unable to Verify': { icon: CircleQuestionMark, tone: 'attention', word: 'Unable to Verify' },
-  Defended: { icon: ShieldCheck, tone: 'success', word: 'Defended' },
   Compromised: { icon: ShieldAlert, tone: 'danger', word: 'Compromised' },
-  Unverified: { icon: ShieldQuestionMark, tone: 'attention', word: 'Unverified' },
   Unrunnable: { icon: CircleSlash, tone: 'neutral', word: 'Unrunnable' },
   'Not run': { icon: CircleDashed, tone: 'neutral', word: 'Not run' },
   'Awaiting judge': { icon: CircleDashed, tone: 'neutral', word: 'Awaiting judge' },
@@ -27,13 +25,6 @@ const VERDICT = {
 }
 export const verdictTone = v => VERDICT[v]?.tone ?? 'neutral'
 
-/** The deck's attack word for an adversarial result (spec C8). */
-export function attackWord(d) {
-  if (d.compromised) return 'Compromised'
-  if (d.status === 'Pass') return 'Defended'
-  if (d.status === 'Unable to Verify') return 'Unverified'
-  return null
-}
 /** What a result row shows when there is no verdict. */
 export function verdictOf(d) {
   if (!d) return 'Not run'
@@ -54,14 +45,14 @@ export function VerdictLabel({ verdict, size = 'medium', bare = false, className
   )
 }
 
-/** A result's label, with the deck word beside an attack's verdict. */
+/** A result's label, with Compromised beside the verdict only when the
+    result carries the compromised flag (scope cut 16 Nov 2026). */
 export function ResultLabel({ d, size }) {
   const v = verdictOf(d)
-  const word = d?.scenarioDef?.class === 'adversarial' && d.status ? attackWord(d) : null
   return (
     <span className="result-label">
       <VerdictLabel verdict={v} size={size} />
-      {word && <VerdictLabel verdict={word} size={size} bare />}
+      {d?.compromised && <VerdictLabel verdict="Compromised" size={size} bare />}
     </span>
   )
 }

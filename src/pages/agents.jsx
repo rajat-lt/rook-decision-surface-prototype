@@ -1,7 +1,7 @@
 // Agents (brief §7.1, spec §4.1): which agents are ready, and which need me?
 // The row follows the 0.1.18 "Test Manager layout" (exists): a mark for the
-// last run's outcome first, a bar of that run's results last. Standing
-// against policy and open triage are [proposed].
+// last run's outcome first, a bar of that run's results last. Open blockers
+// and open triage are [proposed].
 import React, { useState } from 'react'
 import { ChevronDown, CircleX, CircleQuestionMark, CircleCheck, Wrench } from 'lucide-react'
 import { LTButton, LTLink, LTTag, LTInputBox, LTCounterLabel, LTBlankSlate } from '../lt.jsx'
@@ -9,10 +9,10 @@ import { LTActionMenu } from '../overlays.jsx'
 import { useStore } from '../store.jsx'
 import { useHandoff, HANDOFF } from '../handoff.jsx'
 import { OTHER_AGENTS, VERSIONS } from '../data.js'
-import { standing, totals, criteriaStats, runsFor, triageItems } from '../model.js'
+import { readiness, totals, criteriaStats, runsFor, triageItems } from '../model.js'
 import { ResultsBar, PanelState } from '../verdict.jsx'
 import { href } from '../router.js'
-import { relTime } from '../format.js'
+import { relTime, plural } from '../format.js'
 import { barCounts } from './runs.jsx'
 
 /** The outcome mark (web UI doc): ✕ any failed, ? any Unable to Verify, ✓ all passed, none otherwise. */
@@ -31,10 +31,9 @@ export function AgentsPage() {
   const [q, setQ] = useState('')
   const [status, setStatus] = useState('')
   const [profile, setProfile] = useState('')
-  const policy = st.effectivePolicy
   const panel = st.proto === 'loading' ? 'loading' : st.proto === 'error' ? 'error' : null
 
-  const rd = standing('v12', st.proto, policy)
+  const rd = readiness('v12', st.proto)
   const rdRun = rd.run
   const rdc = rdRun ? criteriaStats(rdRun) : null
   const open = triageItems(runsFor(st.proto).filter(r => r.version === 'v12'), st.triage).filter(i => !i.disposition?.disposition).length
@@ -49,10 +48,9 @@ export function AgentsPage() {
       const counts = a.lastRun ? { passed: a.lastRun.passed, failed: a.lastRun.failed, unverifiable: a.lastRun.unverifiable, not_run: a.lastRun.not_run, skipped: a.lastRun.skipped } : null
       let s
       if (!a.lastRun) s = { kind: 'shared', label: 'Awaiting a shared run' }
-      else if (!policy) s = { kind: 'no-policy', label: 'Awaiting a policy' }
       else {
-        const n = a.gate.failed + (policy.uvAllowed === 'any' ? 0 : a.gate.unverifiable) + (policy.unrunnableAllowed === 'any' ? 0 : a.gate.unrunnable)
-        s = n ? { kind: 'blocked', label: `Blocked by ${n}` } : { kind: 'meets', label: 'Meets policy' }
+        const n = a.blockerCounts.failed + a.blockerCounts.unverifiable + a.blockerCounts.unrunnable
+        s = n ? { kind: 'blockers', label: plural(n, 'blocker') } : { kind: 'clear', label: 'Clear' }
       }
       return {
         id: a.id, name: a.name, version: a.version, labels: a.labels, profile: a.profile, counts, lastAt: a.lastRun?.at ?? null, standing: s,
@@ -82,7 +80,6 @@ export function AgentsPage() {
       <div className="page-head">
         <h1 className="h-title">Agents</h1>
         <LTCounterLabel count={shown.length} />
-        <div className="page-head__actions"><LTLink href={href.policy()}>Release Policy</LTLink></div>
       </div>
       <div className="filters">
         <LTInputBox value={q} onChange={setQ} placeholder="Search agents" ariaLabel="Search agents" extraStyle={{ flex: 1 }} />
@@ -96,7 +93,7 @@ export function AgentsPage() {
         <div className="agents" role="table" aria-label="Agents">
           <div className="agents__row agents__row--head" role="row">
             <span role="columnheader"><span className="vh">Last run outcome</span></span>
-            <span role="columnheader">Agent</span><span role="columnheader">Version</span><span role="columnheader">Standing</span>
+            <span role="columnheader">Agent</span><span role="columnheader">Version</span><span role="columnheader">Open blockers</span>
             <span role="columnheader">Verification</span><span role="columnheader">Open triage</span><span role="columnheader">Last run</span>
           </div>
           {shown.map(r => (
@@ -114,7 +111,7 @@ export function AgentsPage() {
               </span>
               <span role="cell" className="mono-inline agents__v">{r.version}</span>
               <span role="cell"><LTTag text={r.standing.label} labelStyle="filled"
-                variant={r.standing.kind === 'meets' ? 'success' : r.standing.kind === 'blocked' || r.standing.kind === 'incomplete' ? 'danger' : 'secondary'} /></span>
+                variant={r.standing.kind === 'clear' ? 'success' : r.standing.kind === 'blockers' || r.standing.kind === 'incomplete' ? 'danger' : 'secondary'} /></span>
               <span role="cell">{r.verification ?? <span className="muted">–<span className="vh"> unavailable</span></span>}</span>
               <span role="cell">{r.open ? <LTLink href={href.tab('triage', {}, r.id)}>{r.open} untriaged</LTLink> : <span className="muted">0</span>}</span>
               <span role="cell" className="agents__last">
@@ -124,7 +121,7 @@ export function AgentsPage() {
           ))}
         </div>
       )}
-      <p className="caption">Standing uses the project's {policy ? 'release policy' : 'release policy, once one is set'}. Other agents' rows are Rook sample data. The journeys run on Refund Desk.</p>
+      <p className="caption">Other agents' rows are Rook sample data. The journeys run on Refund Desk.</p>
     </div>
   )
 }

@@ -8,8 +8,8 @@ import { LTSegmentedControl, LTDrawer } from '../overlays.jsx'
 import { AgentFrame } from '../App.jsx'
 import { useStore } from '../store.jsx'
 import { useHandoff, HANDOFF } from '../handoff.jsx'
-import { PEOPLE, PROFILES, GATING } from '../data.js'
-import { runsFor, runFor, totals, criteriaStats, details, triageKey, POLICY_NAME, attackReach, pct } from '../model.js'
+import { PEOPLE, PROFILES } from '../data.js'
+import { runsFor, runFor, totals, criteriaStats, behaviour, details, triageKey, pct } from '../model.js'
 import { ResultLabel, ResultsBar, LedgerTile, PanelState, ToolName, PinnedLine } from '../verdict.jsx'
 import { CodeFile } from './result.jsx'
 import { runYaml, profileYaml } from '../files.js'
@@ -73,7 +73,6 @@ export function RunPage({ route }) {
   const t = totals(run)
   const ds = details(run)
   const panel = st.proto === 'loading' ? 'loading' : st.proto === 'error' ? 'error' : null
-  const prev = previousGating(run)
   return (
     <div className="page-col">
       <header className="run-head">
@@ -82,7 +81,6 @@ export function RunPage({ route }) {
           <LTTag text={run.state} variant={run.state === 'completed' ? 'secondary' : 'attention'} size="large" />
           <div className="page-head__actions">
             <LTButton variant="outline" size="medium" leadingIcon={FileText} label="View Plan" onClick={() => setPlan(true)} />
-            {prev && <LTLink href={href.compare(prev, run.id)}>Compare With {run.version === 'v11' ? 'v10' : 'v11'}</LTLink>}
           </div>
         </div>
         <PinnedLine run={run} totals={t} prefix="Run" />
@@ -95,7 +93,6 @@ export function RunPage({ route }) {
           <div><dt>Credits</dt><dd>{credits(run.credits)}</dd></div>
           <div><dt>Duration</dt><dd>{duration(run.duration_ms)}</dd></div>
           <div><dt>Phases run</dt><dd>{run.phases_run.length ? run.phases_run.join(', ') : '0 phases'}</dd></div>
-          <div><dt>Gate policy</dt><dd>{run.gate ? `${POLICY_NAME[run.gate]} [proposed]` : 'Outside the gate'}</dd></div>
         </dl>
         {run.state !== 'completed' && (
           <div className="state-card">
@@ -129,22 +126,17 @@ export function RunPage({ route }) {
     </div>
   )
 }
-function previousGating(run) {
-  const order = ['v10', 'v11', 'v12']
-  const prev = order[order.indexOf(run.version) - 1]
-  return prev ? GATING[prev] : null
-}
 
 function RunLedger({ run, panel }) {
   if (panel) return <PanelState state={panel} object="this run's proof" rows={2} lead />
-  const t = totals(run), c = criteriaStats(run), a = attackReach(run.version, run)
-  const reached = a.rows.filter(r => run.included.includes(r.scenario.id))
+  const t = totals(run), c = criteriaStats(run), b = behaviour(run.version, run)
   return (
     <div className="ledger__tiles ledger__tiles--3">
       <LedgerTile heading="Verdicts" sentence={`${t.judged} of ${t.planned} planned scenarios judged`}
         breakdown={[t.passed && `${t.passed} Pass`, t.failed && `${t.failed} Fail`, t.unverifiable && `${t.unverifiable} Unable to Verify`, t.unrunnable && `${t.unrunnable} unrunnable`, t.not_run && `${t.not_run} not run`, t.unjudged && `${t.unjudged} awaiting judge`].filter(Boolean).join(' · ') || '–'} />
       <LedgerTile heading="Verification coverage" sentence={c.total ? `${c.verified} of ${c.total} criteria verified · ${pct(c.verified, c.total)}` : '0 criteria judged'} breakdown={c.total ? `${c.uv} Unable to Verify` : '–'} />
-      <LedgerTile heading="Attacks in this run" sentence={`${reached.filter(r => r.result?.status).length} of ${reached.length} attack scenarios reached`} breakdown={`${a.defended} defended · ${a.compromised} compromised`} />
+      <LedgerTile heading="Behaviour coverage" sentence={`${b.tested} of ${b.total} features tested · ${pct(b.tested, b.total)}`}
+        breakdown={[b.awaitingScenarios && `${b.awaitingScenarios} awaiting scenarios`, b.awaitingRun && `${b.awaitingRun} awaiting a run`].filter(Boolean).join(' · ') || 'Every feature tested'} />
     </div>
   )
 }

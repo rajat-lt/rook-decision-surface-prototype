@@ -90,9 +90,8 @@ export function PlatformSidebar() {
 }
 
 const STATES = [
-  { value: 'blocked', label: 'Blocked' },
-  { value: 'meets', label: 'Meets policy' },
-  { value: 'no-policy', label: 'Awaiting a policy' },
+  { value: 'blocked', label: 'With blockers' },
+  { value: 'clear', label: 'Clear' },
   { value: 'incomplete', label: 'Incomplete run' },
   { value: 'shared', label: 'Awaiting a shared run' },
   { value: 'empty', label: 'Empty organization' },

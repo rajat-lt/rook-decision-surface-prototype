@@ -1,5 +1,5 @@
 // The app: shell, routes (spec §3.3) and the agent frame, the header and
-// six tabs shared by the agent's pages.
+// five tabs shared by the agent's pages.
 import React, { useEffect, useMemo } from 'react'
 import { Announcer, LTCounterLabel, LTBlankSlate, LTLink } from './lt.jsx'
 import { ToastProvider, LTUnderlineNav } from './overlays.jsx'
@@ -15,13 +15,10 @@ import { OverviewPage } from './pages/overview.jsx'
 import { RunsPage, RunPage } from './pages/runs.jsx'
 import { ResultPage } from './pages/result.jsx'
 import { TriagePage } from './pages/triage.jsx'
-import { ComparePage } from './pages/compare.jsx'
 import { CoveragePage } from './pages/coverage.jsx'
-import { SecurityPage } from './pages/security.jsx'
 import { SetupPage } from './pages/setup.jsx'
-import { PolicyPage } from './pages/policy.jsx'
 
-const TAB_LABEL = { overview: 'Overview', runs: 'Runs', triage: 'Triage', coverage: 'Coverage', security: 'Security', setup: 'Setup', compare: 'Run Comparison' }
+const TAB_LABEL = { overview: 'Overview', runs: 'Runs', triage: 'Triage', coverage: 'Coverage', setup: 'Setup' }
 export const AGENT_NAME = { 'refund-desk': 'Refund Desk', ...Object.fromEntries(OTHER_AGENTS.map(a => [a.id, a.name])) }
 
 /** Untriaged failed and Unable to Verify criteria on the current version. */
@@ -37,7 +34,7 @@ export function useUntriaged() {
 export function AgentFrame({ route, actions, children, current }) {
   const untriaged = useUntriaged()
   const tab = current ?? route.page
-  const navs = ['overview', 'runs', 'triage', 'coverage', 'security', 'setup'].map(id => ({
+  const navs = ['overview', 'runs', 'triage', 'coverage', 'setup'].map(id => ({
     id, label: TAB_LABEL[id], href: href.tab(id), counter: id === 'triage' && untriaged ? untriaged : null,
   }))
   return (
@@ -49,7 +46,7 @@ export function AgentFrame({ route, actions, children, current }) {
         </div>
         {actions && <div className="agent-head__actions">{actions}</div>}
       </header>
-      <LTUnderlineNav ariaLabel="Agent" navs={navs} current={tab === 'compare' || tab === 'run' ? 'runs' : tab} />
+      <LTUnderlineNav ariaLabel="Agent" navs={navs} current={tab === 'run' ? 'runs' : tab} />
       <div className="agent-body">{children}</div>
     </div>
   )
@@ -60,7 +57,6 @@ function crumbsFor(route) {
   if (route.page === 'projects') { c[0].current = true; return c }
   c.push({ label: 'Web app', href: href.agents() })
   if (route.page === 'agents') { c.push({ label: 'Agents', href: href.agents(), current: true }); return c }
-  if (route.page === 'policy') { c.push({ label: 'Release Policy', href: href.policy(), current: true }); return c }
   const agent = route.agent ?? 'refund-desk'
   c.push({ label: AGENT_NAME[agent] ?? agent, href: href.tab('overview', {}, agent) })
   if (route.page === 'run' || route.page === 'result') {
@@ -89,7 +85,7 @@ function Routes() {
   const route = useRoute()
   const st = useStore()
   useEffect(() => {
-    const t = { projects: 'Projects', agents: 'Agents', policy: 'Release Policy', run: 'Run', result: 'Scenario Result' }[route.page] ?? TAB_LABEL[route.page] ?? 'Rook'
+    const t = { projects: 'Projects', agents: 'Agents', run: 'Run', result: 'Scenario Result' }[route.page] ?? TAB_LABEL[route.page] ?? 'Rook'
     document.title = `${t} · Rook decision surface · Prototype`
     window.scrollTo(0, 0)
   }, [route.page, route.run, route.scenario])
@@ -97,7 +93,6 @@ function Routes() {
   let page
   if (route.page === 'projects') page = <ProjectsPage />
   else if (route.page === 'agents') page = <AgentsPage />
-  else if (route.page === 'policy') page = <PolicyPage />
   else if (st.proto === 'empty') page = <ProjectsPage />
   else if (otherAgent) page = <OtherAgent route={route} />
   else if (route.page === 'overview') page = <OverviewPage route={route} />
@@ -105,9 +100,7 @@ function Routes() {
   else if (route.page === 'run') page = <RunPage route={route} />
   else if (route.page === 'result') page = <ResultPage route={route} />
   else if (route.page === 'triage') page = <TriagePage route={route} />
-  else if (route.page === 'compare') page = <ComparePage route={route} />
   else if (route.page === 'coverage') page = <CoveragePage route={route} />
-  else if (route.page === 'security') page = <SecurityPage route={route} />
   else if (route.page === 'setup') page = <SetupPage route={route} />
   else page = <div className="page-col"><LTBlankSlate heading="This page is outside the prototype" primaryAction={<LTLink href={href.tab('overview')}>Open Overview</LTLink>} /></div>
   return (
