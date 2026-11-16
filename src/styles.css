@@ -884,3 +884,4 @@ a.crumb.current:hover { color: var(--fg-default); }
 .lt-flash { align-items: flex-start; }
 .lt-flash__icon { margin-top: 2px; flex: none; }
 .lt-code--light .tok-comment { color: var(--fg-muted); }
+.triage-foot__error { margin-top: var(--space-2); }

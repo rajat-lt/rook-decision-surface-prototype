@@ -25,8 +25,13 @@ assert.deepEqual(['incomplete', 'shared'].map(p => readiness('v12', p).kind), ['
 // untested features always block, so it reads 2 blockers (spec C33, open).
 const cl = readiness('v12', 'clear')
 assert.deepEqual([cl.kind, cl.blockers.map(x => x.id)], ['blockers', ['F-002', 'F-003']])
-// v11 keeps the compromised SC-006 (scope cut §3.7).
-assert.ok(blockers('v11', RUN[GATING.v11]).some(x => x.id === 'SC-006' && x.kind === 'compromised'), 'v11 SC-006 compromised')
+// Build brief v0.3.1 §6.3: four runs, all on v12; the compromised SC-006
+// sits in the older v12 smoke run (§6.4). Rebuilt 16 Nov 2026 on Rajat's answer.
+assert.deepEqual(RUNS.map(x => `${x.version} ${x.name}`), ['v12 smoke', 'v12 rerun-sc-006', 'v12 release-gate', 'v12 rerun-sc-004'])
+const smoke = RUNS.find(x => x.name === 'smoke')
+assert.ok(details(smoke).some(d => d.scenario === 'SC-006' && d.compromised && d.status === 'Fail'), 'v12 smoke SC-006 compromised')
+assert.deepEqual(RUNS.find(x => x.name === 'rerun-sc-004').included, ['SC-004', 'SC-009'])
+assert.equal(readiness('v11', 'blocked').kind, 'shared', 'v11 has no runs')
 assert.ok(SCENARIO['SC-004'].criteria.find(x => x.criterion_id === 'C2').criterion.length > 200, 'one criterion over 200 characters')
 assert.ok(SCENARIOS.some(s => s.title.length > 40), 'one 40-character-plus title')
 assert.ok(RUNS.some(r => totals(r).executed === 0), 'a run with 0 executed')
@@ -36,10 +41,11 @@ for (const r of RUNS) {
   assert.equal(x.executed, x.passed + x.failed + x.unverifiable + x.unjudged, r.id)
   assert.equal(x.planned, x.executed + x.not_run + x.unrunnable, r.id)
 }
-// Triage: 3 untriaged on v12.
+// Triage on v12: 12 failed or unverifiable criteria, 3 seeded, 9 untriaged.
 const v12runs = RUNS.filter(r => r.version === 'v12')
 const items = triageItems(v12runs, SEED_TRIAGE)
-assert.equal(items.length, 6)
-assert.equal(items.filter(i => !i.disposition).length, 3)
+assert.equal(items.length, 12)
+assert.equal(items.filter(i => !i.disposition).length, 9)
+assert.ok(items.some(i => i.run.name === 'smoke' && i.detail.scenario === 'SC-006'), 'the compromised SC-006 lands in Triage')
 assert.equal(FEATURES.length, 6)
-console.log('Story checks pass: 13 planned, 12 executed, 9/1/2; 39 of 42 criteria; 4 of 6 features; 6 blockers in the default ranking; v11 SC-006 compromised; 3 untriaged.')
+console.log('Story checks pass: 13 planned, 12 executed, 9/1/2; 39 of 42 criteria; 4 of 6 features; 6 blockers in the default ranking; 4 runs on v12, SC-006 compromised in smoke; 9 of 12 untriaged.')

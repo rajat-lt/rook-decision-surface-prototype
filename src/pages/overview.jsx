@@ -7,7 +7,7 @@ import { LTSelect } from '../overlays.jsx'
 import { AgentFrame } from '../App.jsx'
 import { useStore } from '../store.jsx'
 import { useHandoff, HANDOFF } from '../handoff.jsx'
-import { VERSIONS, GATING } from '../data.js'
+import { VERSIONS } from '../data.js'
 import { readiness, totals, criteriaStats, behaviour, gatingRun, KIND, pct, triageKey } from '../model.js'
 import { LedgerTile, PinnedLine, ToolName, PanelState, Person } from '../verdict.jsx'
 import { href, setQuery } from '../router.js'
@@ -61,7 +61,9 @@ function CopyLink() {
 export function OverviewPage({ route }) {
   const st = useStore()
   const handoff = useHandoff()
-  const version = route.q.version && GATING[route.q.version] ? route.q.version : 'v12'
+  // Every synced version is listed; only v12 has runs (build brief §13 item 4), so
+  // v10 and v11 read as awaiting a shared run.
+  const version = VERSIONS.some(v => v.id === route.q.version) ? route.q.version : 'v12'
   const s = useMemo(() => readiness(version, st.proto), [version, st.proto])
   const run = s.run
   const panel = st.proto === 'loading' ? 'loading' : st.proto === 'error' ? 'error' : null

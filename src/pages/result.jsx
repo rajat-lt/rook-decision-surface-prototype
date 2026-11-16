@@ -9,7 +9,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ChevronDown, FileText, Bug } from 'lucide-react'
 import {
   cx, LTButton, LTIconButton, LTTag, LTLink, LTCodeBlock, LTCopyToClipboard, LTInputBox, LTInlineMessage, LTBlankSlate,
-  LTCounterLabel, LTFlash, LTProgressBar, LTTestStatusLabel,
+  LTCounterLabel, LTFlash, LTProgressBar, LTTestStatusLabel, announce,
 } from '../lt.jsx'
 import { LTSegmentedControl, LTSelect, LTTabNav, LTDrawer, LTUnderlineNav, LTActionMenu, useToast } from '../overlays.jsx'
 import { useStore, nowMs } from '../store.jsx'
@@ -435,36 +435,53 @@ function CriterionCard({ run, d, c }) {
 }
 
 /* ---------- triage footer [proposed] (spec §4.4, C7, D8). From 16 Nov 2026
-   (Rajat): Reason and Assigned to, a bug button on a failed criterion,
-   Confirm as the primary button, and no Note field. ---------- */
+   (Rajat): Reason and Assigned to, a bug button on a failed criterion, and no
+   Note field. The selects hold a draft that Confirm (primary) saves; View
+   Next Step opens the hand-off for the reason shown (copy from /text, spec
+   §9.13). A saved change from elsewhere (the header's menus, Triage)
+   replaces the draft. ---------- */
 function TriageFooter({ run, d, c }) {
   const st = useStore()
+  const toast = useToast()
   const handoff = useHandoff()
   const key = triageKey(run.id, d.scenario, c.criterion_id)
   const rec = st.triage[key] ?? {}
+  const [draft, setDraft] = useState({ disposition: rec.disposition ?? '', owner: rec.owner ?? '' })
+  const [missing, setMissing] = useState(false)
+  useEffect(() => { setDraft({ disposition: rec.disposition ?? '', owner: rec.owner ?? '' }); setMissing(false) }, [rec.disposition, rec.owner])
+  const dirty = draft.disposition !== (rec.disposition ?? '') || draft.owner !== (rec.owner ?? '')
+  const confirm = () => {
+    if (!draft.disposition) { setMissing(true); announce('Choose a reason.'); return }
+    st.setTriage(key, { disposition: draft.disposition, owner: draft.owner || undefined })
+    toast(`${c.criterion_id} confirmed as ${draft.disposition}, ${draft.owner ? `assigned to ${PEOPLE[draft.owner].name}` : 'unassigned'}.`)
+  }
   return (
     <div className="triage-foot" role="group" aria-label={`Triage ${c.criterion_id}`}>
       <div className="triage-foot__row">
         <div className="triage-foot__field">
           <span className="field-label">Reason</span>
-          <LTSelect inputAriaLabel={`Reason for ${c.criterion_id}`} value={rec.disposition ?? ''} customButtonText={rec.disposition ?? 'Untriaged'} width={240} anchorButtonSize="small"
+          <LTSelect inputAriaLabel={`Reason for ${c.criterion_id}`} value={draft.disposition} customButtonText={draft.disposition || 'Untriaged'} width={240} anchorButtonSize="small"
             options={DISPOSITIONS.map(x => ({ value: x, label: x }))}
-            onChange={v => st.setTriage(key, { disposition: v })} />
+            onChange={v => { setDraft(x => ({ ...x, disposition: v })); setMissing(false) }} />
         </div>
         <div className="triage-foot__field">
           <span className="field-label">Assigned to</span>
-          <LTSelect inputAriaLabel={`Assignee for ${c.criterion_id}`} value={rec.owner ?? ''} customButtonText={PEOPLE[rec.owner]?.name ?? 'Unassigned'} width={300} anchorButtonSize="small"
+          <LTSelect inputAriaLabel={`Assignee for ${c.criterion_id}`} value={draft.owner} customButtonText={PEOPLE[draft.owner]?.name ?? 'Unassigned'} width={300} anchorButtonSize="small"
             options={Object.values(PEOPLE).map(p => ({ value: p.id, label: p.name, description: p.role }))}
-            onChange={v => st.setTriage(key, { owner: v })} />
+            onChange={v => setDraft(x => ({ ...x, owner: v }))} />
         </div>
         <div className="triage-foot__acts">
           {c.status === 'Fail' && (
             <LTIconButton icon={Bug} variant="invisible" size="small" ariaLabel={`Report a bug for ${c.criterion_id}`}
               onClick={() => handoff(HANDOFF.bug({ runUrl: runUrl(run, d), scenario: d.scenario, criteria: [c] }))} />
           )}
-          <LTButton variant="primary" size="small" label="Confirm" onClick={() => handoff(handoffFor(run, d, c, rec.disposition))} />
+          <LTButton variant="outline" size="small" label="View Next Step" onClick={() => handoff(handoffFor(run, d, c, draft.disposition || undefined))} />
+          <LTButton variant="primary" size="small" label="Confirm" onClick={confirm} />
         </div>
       </div>
+      {/* Below the row, under Reason, so the buttons stay level with the selects. */}
+      {missing && <LTInlineMessage variant="error" size="small" className="triage-foot__error">Choose a reason.</LTInlineMessage>}
+      {dirty && <p className="caption triage-foot__hint">Click <strong>Confirm</strong> to save your changes.</p>}
       {rec.setBy && <p className="caption">Set by {PEOPLE[rec.setBy].name} · {relTime(rec.setAt, nowMs())}. The verdict stays {c.status}.</p>}
     </div>
   )

@@ -3,7 +3,7 @@
 A working prototype of Rook's hosted web UI (rook.lambdatest.com) redesigned as a **decision surface**: QA engineers, QA leads and engineering leaders make release decisions in the browser, and every next step hands off to the terminal with the exact `rook` command, its coding-agent prompt, and its side effects stated first. **The terminal acts, the browser decides.** Built from design-context with mock data only.
 
 - **Live:** https://rajat-lt.github.io/rook-decision-surface-prototype/
-- **Spec:** [`rook-decision-surface.md`](rook-decision-surface.md) (house format: brief, sources, structure, behaviour and states, mock data, conflicts C1 to C49, gaps G1 to G12, decisions D1 to D27, copy finalists, open questions, ship checklist)
+- **Spec:** [`rook-decision-surface.md`](rook-decision-surface.md) (house format: brief, sources, structure, behaviour and states, mock data, conflicts C1 to C50, gaps G1 to G12, decisions D1 to D27, copy finalists, open questions, ship checklist)
 - **Scope cut (16 Nov 2026):** [`../rook-ux/rook-prototype-scope-cut.md`](../rook-ux/rook-prototype-scope-cut.md) removed run comparison, Security, the release policy and Record Decision. The removed parts stay described below, each marked.
 - **Inputs:** the build brief and the journeys doc (*Rook: primary UX journeys and rationale*, Nov 11, 2026)
 
@@ -27,7 +27,7 @@ The dashed **Prototype** bar in the top bar is not part of the design:
 ### A five-minute walkthrough
 
 1. **J1 Release readiness.** Overview reads *v12 has 1 failed, 2 unverifiable, and 1 unrunnable scenario, and 2 untested features*, with 6 blockers ranked by risk. Open the first blocker's **View Evidence**. (Earlier: *4 items block v12*, replaced 16 Nov 2026 by the scope cut.)
-2. **J2 Triage.** On SC-004, the red banner says why it failed; **Overview** shows `issue_refund` called for $249 before any email was given, while *What the agent said* claims it confirmed the email. On **Acceptance criteria**, set a **Reason** and **Assigned to** on C2 (or for every open criterion from the header), then **Confirm** for the hand-off; the bug button copies a bug report. *Replaced 16 Nov 2026 (Rajat: v2 changes).* Earlier: Set a **Disposition**, then **Next Step** for the hand-off.
+2. **J2 Triage.** On SC-004, the red banner says why it failed; **Overview** shows `issue_refund` called for $249 before any email was given, while *What the agent said* claims it confirmed the email. On **Acceptance criteria**, set a **Reason** and **Assigned to** on C2 and **Confirm** saves them (the header's menus set every open criterion at once); **View Next Step** opens the hand-off, and the bug button copies a bug report. *Replaced 16 Nov 2026 (Rajat: answers).* Earlier the same day: then **Confirm** for the hand-off. *Replaced 16 Nov 2026 (Rajat: v2 changes).* Earlier: Set a **Disposition**, then **Next Step** for the hand-off.
 3. **J3 Close the gap.** SC-009 is Unable to Verify: its amber banner says the hook recorded `issue_refund` without its arguments. The banner's **Next Step** composes `rook profile fix staging --what "…"`. Coverage's **Gap breakdown** groups every gap by cause.
 4. **J4 Regression check.** *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier wording: **Compare Runs**: SC-004 newly failing, SC-006 newly fixed, SC-008 flaky, SC-005 redefined and left out of the regression buckets.
 5. **J5 Plan coverage.** Coverage lists F-002 and F-003 first; select them and **Generate Scenarios**.
@@ -37,7 +37,7 @@ The dashed **Prototype** bar in the top bar is not part of the design:
 
 | Brief item | Priority | What to look at |
 |---|---|---|
-| §7.2 Agent Overview | P0 | Verdict line and standing, pinned context, proof ledger (fractions, never a bare %), blockers ranked by risk with write badges and triage state, Since v11, trend, decision record. Version switcher: v11 shows the compromised SC-006 |
+| §7.2 Agent Overview | P0 | Verdict line and standing, pinned context, proof ledger (fractions, never a bare %), blockers ranked by risk with write badges and triage state, Since v11, trend, decision record. Version switcher: v11 shows the compromised SC-006 (*Replaced 16 Nov 2026 (Rajat: answers).* only v12 has runs now; the compromised SC-006 is in v12 smoke) |
 | §7.4 Scenario result | P0 | *Replaced 16 Nov 2026 (Rajat: v2 changes), see the v2 section.* 400px scenario pane; why card (*Why it failed*, *Why it couldn't be verified*, *Why it was compromised*); goal; observed calls before the agent's claim; criteria filter opening on Fail; criterion cards; triage footer; evidence drawer (Request, Response, Verdict, Artefacts) |
 | §8.4 Hand-off drawer | P0 | Every **Next Step**: what it does, credits, live calls, write tools, profile and target, command, prompt, after |
 | §7.3 Run detail | P1 | *Removed 16 Nov 2026 (Rajat: v2 changes): a run opens on its first scenario; its header moved there.* Pinned header, **View Plan** (`run.yaml`), pinned versus current profile, run ledger, Failure clusters analysis, failures by tool, scenario table, unrunnable and skipped |
@@ -74,6 +74,19 @@ Rajat's list, on top of the scope cut (spec §1.4, conflicts C37 to C49):
 | Run detail | Removed. A run opens on its first scenario |
 | Scenario page | Modelled on Test Manager's Test Instances listing: the run's header and summary card on top, the run's scenarios in the left pane, then the scenario's meta, a banner (red when it failed), and **Overview**, **Acceptance criteria** and **Evidence** tabs. Evidence sits on the page. Every criterion is expanded. Open criteria carry **Reason**, **Assigned to**, a bug button and **Confirm** (primary); the header sets Reason and Assigned to for all of them at once. The Note field is gone |
 | Code blocks | Light by default |
+
+## v2 answers (16 Nov 2026)
+
+Rajat's answers to the open questions (spec §1.5):
+
+| Question | Answer, as built |
+|---|---|
+| 25 · Which runs? | The build brief's four v12 runs: smoke (SC-006 compromised, SC-008 failed), rerun-sc-006 (0 executed), release-gate (the gating run, unchanged), rerun-sc-004 (SC-004 and SC-009). v10 and v11 stay in the switcher with no runs |
+| 26 · What does Confirm do? | It saves Reason and Assigned to, which are drafts until then. **View Next Step** opens the hand-off for the reason shown. Copy from `/text` (spec §9.13) |
+| 28 · Unable to Verify like Fail? | Yes: the same header menus, footer and banner (amber) |
+| 29 · Failure clusters and Failures by tool? | Dropped with the run page. Each scenario's banner keeps its cluster and why |
+
+Still open: Recorded and Test runs tabs (23), the Clear state's 2 blockers (24), a note for Accepted risk (27).
 
 ## Run it
 
