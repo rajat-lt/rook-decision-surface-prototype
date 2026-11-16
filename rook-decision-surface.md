@@ -817,7 +817,7 @@ New, from this build:
 | 30 | What does the product's legend item **calls not read** mean, and what does a dashed node border show? (C51) |
 | 31 | Should the graph name each edge's tools on the line, rather than on hover? |
 | 32 | Should the prototype states come back some other way (a URL flag, a hidden menu), now the bar is gone? (C52) |
-| 33 | The Runs row shows the local run ID (`2026-11-10T13-48-21Z`), which repeats the date beside it; the hosted ID format is `[TO FILL]`. Keep it, drop it from the row, or show a hosted-ID placeholder? |
+| 33 | The Runs row shows the local run ID (`2026-11-10T13-48-21Z`), which repeats the date beside it; the hosted ID format is `[TO FILL]`. Keep it, drop it from the row, or show a hosted-ID placeholder? **Answered 16 Nov 2026 (Rajat):** keep it |
 | 29 | Failure clusters analysis and Failures by tool exist on the product's run page. With the run page gone, do they move to the run header, or leave the prototype? (C49) **Answered 16 Nov 2026 (Rajat):** drop them |
 | 25 | Keep the v10 to v12 runs and v11's compromised SC-006 (scope cut), or rebuild to build brief §6.3's 4 runs on v12 with SC-006 compromised in v12 smoke? (C35) **Answered 16 Nov 2026 (Rajat):** rebuild the brief's four v12 runs |
 
