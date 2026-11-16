@@ -67,6 +67,12 @@ Read with the house patterns: `test-entity-listing.md` (§3.4 row anatomy, §3.5
 
 They answer open questions 25, 26, 28 and 29 (§10). "Update the prototype" is read as: merge the branch into `main` and deploy it to GitHub Pages. Questions 23, 24 and 27 stay open, built as before.
 
+### 1.6 Rajat's round 3 (Nov 16, 2026)
+
+> 1. what is this "2026-11-10T13-48-21Z" in runs listing? 2. inside evidence tab, show all response, request, verdict, artefacts in the evidence tab panel itself and not inside another tabNav component. 3. fix the right-side padding of scenario details inside run. 4. remove prototype settings section from the topbar. 5. see attached image, i want to show agent context diagram inside the overview tab also along with view full spec and view findings. once done, then deploy changes.
+
+The attached image is the product's **Context** section for another agent (`incident-scribe`): a graph of AGENT, MCP, DATABASE and SERVICE nodes, edges labelled by how the call travels, a legend `writes · read only · unknown · calls not read · 5 reached · 8 calls`, zoom in, zoom out, reset and full screen, `Checkpoint sha256:7fe2de14`, **View Full Spec** and **View findings**. Item 1 is a question, answered in the report from the web UI doc (Nov 16, 2026, last updated Nov 13): a run has a hosted run ID, and "it may differ from the local run directory ID"; the prototype shows the local format (§3.3).
+
 ## 2. Sources read (Nov 11, 2026)
 
 Every fact below comes from one of these. Nothing else was used.
@@ -141,7 +147,7 @@ Every fact below comes from one of these. Nothing else was used.
 - **Top bar left slot:** LTBreadcrumbs, `Projects / Web app / refund-desk / {page}`. Every crumb is a link and the current one carries `aria-current="page"`, bold (FIX-5 read: `ltbreadcrumbs.md`'s "every crumb is a link" over `topbar.md`'s "the last is not a link"; C15).
 - **Top bar right cluster:** the notifications bell, the avatar and Upgrade Now, which `topbar.md` §2 calls constant across products. No quota module: `topbar.md` names none for Rook, and the rule is "omitted, never emptied" (gap G6).
 - **Rail:** the expanded panel shows `platform-sidebar.md`'s 15 destinations. None is Rook or Agent Assurance, so none is active (gap G7). The collapsed rail shows one Agent Assurance icon, `Scale` [proposed placeholder, TO FILL].
-- **Prototype bar:** dashed, inside the top bar, not part of the design (§11).
+- **Prototype bar:** *Removed 16 Nov 2026 (Rajat: round 3).* Earlier: dashed, inside the top bar, not part of the design (§11).
 
 ### 3.3 Routes and information architecture
 
@@ -170,7 +176,7 @@ Every fact below comes from one of these. Nothing else was used.
 
 ### 3.4 Layout
 
-- 1512 default, `min-width: 1280px`. Single-column pages (Overview, Run detail, Triage, Comparison, Coverage, Security, Setup, Agents, Projects, Release policy; Comparison, Security and Release policy removed 16 Nov 2026) centre at 1232px with 112px margins. The scenario result has a list pane, so it runs full width: the run's header and summary across the top, then the scenario pane at 320px (the folder pane's width, `test-entity-listing.md` §6) and the scenario flexing (16 Nov 2026). *Replaced 16 Nov 2026 (Rajat: v2 changes).* list pane 400px, centre flexes.
+- 1512 default, `min-width: 1280px`. Single-column pages (Overview, Run detail, Triage, Comparison, Coverage, Security, Setup, Agents, Projects, Release policy; Comparison, Security and Release policy removed 16 Nov 2026) centre at 1232px with 112px margins. The scenario result has a list pane, so it runs full width: the run's header and summary across the top, then the scenario pane at 320px; the scenario fills the rest with 24px either side, so its right edge meets **View Plan**'s (round 3; earlier capped at 1080px with 32px, which left a wide right margin) (the folder pane's width, `test-entity-listing.md` §6) and the scenario flexing (16 Nov 2026). *Replaced 16 Nov 2026 (Rajat: v2 changes).* list pane 400px, centre flexes.
 - Drawers 640px (hand-off, evidence, plan, definitions) or 480px (setup checklist). Modal 480px (the only modal, Record Decision, removed 16 Nov 2026).
 - Spacing in multiples of 4. Every colour, radius and shadow from `tokens.css`.
 
@@ -231,6 +237,7 @@ Top to bottom:
 7. *Removed 16 Nov 2026 (Rajat: scope cut).* **Since v11:** `Newly failing 1`, `Newly fixed 1`, `Flaky 1`, each a link to the comparison filtered to that bucket, and **Compare Runs** (README: "what changed since last time").
 8. *Removed 16 Nov 2026 (Rajat: scope cut).* **Trend:** verdict counts per version v10 to v12 from each version's gating run, as stacked bars with the counts written beside them. With one run: `One run is a baseline` and the body copy (§9). "One run is explicitly not a trend" (journeys doc, citing the docs).
 9. *Removed 16 Nov 2026 (Rajat: scope cut).* **Decision record** [proposed]: latest decision, avatar, date, accepted-gap count, or `Awaiting sign-off` with Record Decision.
+10. **Context** (Rajat, round 3; §4.17): the context graph, `Checkpoint sha256:…`, **View Full Spec** and **View Findings**, after Blockers.
 
 **Versions (16 Nov 2026, answers):** the switcher lists v12, v11 and v10, and only v12 has runs (build brief §6.3 and its decision on retention), so v11 and v10 read `v11 is waiting for its first shared run` with the shared-run state below it.
 
@@ -267,7 +274,7 @@ Top to bottom:
 6. **`LTUnderlineNav`** (the page's one primary tab layer, at the top of the scenario pane, as `ltunderlinenav.md` allows on master-detail pages): **Overview**, **Acceptance criteria** (counter: every criterion), **Evidence** (C46).
    - **Overview:** Goal sent to the agent, What the agent did (with **View hooks.json**), What the agent said.
    - **Acceptance criteria:** the verdict filter, opening on **All** (D11 superseded); every card expanded, no **Expand All** (C47). A Fail or Unable to Verify card ends in its footer: **Reason** and **Assigned to** (`LTSelect`, held as a draft), a **bug** invisible icon button on a failed criterion, **View Next Step** (outline, opens the hand-off for the reason shown) and **Confirm** (primary, last; saves both values). While a value differs from the saved one: `Click **Confirm** to save your changes.` Confirm with no reason: `Choose a reason.` under the row. Saved: the toast `C2 confirmed as Agent defect, assigned to Gabbar Singh.` (`unassigned` when nobody is), and `Set by {name} · {time}`. A save from the header or Triage replaces the draft. Copy from `/text`, §9.13 (16 Nov 2026, answers; C44). *Replaced 16 Nov 2026 (Rajat: answers).* Earlier the same day: **Confirm** (primary; opens the hand-off for the reason), and the selects saved on change. The **Note** field is gone (C45).
-   - **Evidence:** `LTTabNav` **Request**, **Response**, **Verdict**, **Artefacts** below the underline nav, the files on the page in `LTCodeBlock`, light by default (C38, C48). Artefacts list with **View** in place.
+   - **Evidence** (round 3): **Request**, **Response**, **Verdict** and **Artefacts** follow one another in the tab, each a heading and its file in `LTCodeBlock`, light by default; Artefacts lists every file in full, `collect.json` and `judge-working.json`. A v1 `?tab=` or a `?file=` link scrolls to that file. *Replaced 16 Nov 2026 (Rajat: round 3).* Earlier: `LTTabNav` **Request**, **Response**, **Verdict**, **Artefacts** below the underline nav, the files on the page in `LTCodeBlock`, light by default (C38, C48). Artefacts list with **View** in place.
 
 *Replaced 16 Nov 2026 (Rajat: v2 changes).* The page as built before:
 
@@ -407,6 +414,16 @@ No pass rate anywhere. Verification coverage counts criteria on executed scenari
 | Plan refusal | Starter plan | `Shared results need an Agent Assurance plan with Rook cloud` + **View Plans** (orange) |
 | No calls recorded | `calls` omitted | `This profile records answers only` |
 | No artefacts | product | `No artefacts recorded for this attempt` (product wording, C2) |
+
+### 4.17 Context graph (Overview, round 3) [derived]
+
+- **What it shows:** what refund-desk can call, from its definition, drawn as the product's Context section draws it. One node per call target, its kind under its ID (`AGENT`, `MCP`); one edge per target and access, as explore records calls in the industry samples' `agent.yaml` (`to`, `kind`, `write`, `via`). Edge colour: red for `write: true` (**writes**), the default ink for `write: false` (**read only**), dashed grey for a missing `write` (**unknown**; web UI doc: "Dashed edges indicate unknown mutation status, not a safe operation"). The root agent has the heavier border.
+- **Refund-desk's graph** (from its files, C51): refund-desk → order-lookup (`subagent`, read only); refund-desk → billing (`JSON-RPC 2.0 over stdio`): writes `issue_refund`, read only `get_order`, `get_refund_status`; refund-desk → crm: writes `add_note`, read only `read_notes`; order-lookup → billing: read only `get_order`. Footer `3 reached · 6 calls`. Hovering an edge names its tools.
+- **Controls:** **Zoom in**, **Zoom out**, **Reset zoom**, **Enter full screen** (outline icon buttons with tooltips), as the screenshot shows. Zoom steps 60% to 200%; the canvas scrolls when the graph is larger.
+- **Below:** `Checkpoint sha256:6782e8e3` (`[mock]`), **View Full Spec** (the agent definition in a drawer) and **View Findings** (`No findings recorded`, the product's wording), as on Setup.
+- **Caption:** `What the agent can call, from its definition. Scenario results show what it did call.`, the web UI doc's "definition graph, not a runtime trace" in the guide's positive form.
+- **Accessibility:** the SVG has a title and a description that lists every call; each edge has a title.
+- Setup keeps its Context list and the tree **View Call Graph**.
 
 ---
 
@@ -569,6 +586,8 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 | C48 | Rajat: request, response, verdict and artefacts on the page, no drawer | Web UI doc (**exists**) and brief §7.4: an Evidence drawer (C22) | On the page, under an `LTTabNav` below the scenario's underline nav | C22's drawer reading is superseded |
 | C49 | Build brief v0.3.1 §7.3: Run detail (P1); scope cut §3.10 edits it | Rajat, 16 Nov 2026: the run detail page "is not needed" | Removed after commit 1 applied §3.10; its header moved to the scenario page | Rajat answered question 29: drop Failure clusters analysis and Failures by tool. Each scenario's banner keeps its own cluster and why |
 | C50 | Build brief v0.3.1 §7.2 and the scope cut: v10 and v11 in the version switcher | With §6.3's runs, only v12 has a shared run | v11 and v10 read `v11 is waiting for its first shared run`, with the shared-run hand-off | The build brief's own default (§13 item 4): "Version switcher lists v10 to v12; only v12 has runs" |
+| C51 | Rajat, round 3: the context diagram from the product's screenshot, on Overview | No explore record of refund-desk is in the samples; the industry samples' `agent.yaml` `calls` carry only `kind` `tool` and `service`, `via` `call`, `fetch`, `domain tool dispatch`; the screenshot's legend item **calls not read** and its dashed-border node are explained in no source read | Graph read from refund-desk's own files [derived]; legend shows **writes**, **read only** and **unknown** only; checkpoint `[mock]` (sha256 of the sample's definition files, not Rook's `subtree_digest`) | Draws nothing a source does not state. Open questions 30 and 31 |
+| C52 | Rajat, round 3: remove the prototype settings from the top bar | Spec §11 and earlier rounds: the bar switched states, shell and viewer, and Reset cleared triage | Bar removed. The prototype opens With blockers, Platform, QA engineer. Loading, Error, Empty organization, Clear, Incomplete run and Awaiting a shared run stay in the code with no control. Triage stays in local storage with no Reset; a shell or viewer saved earlier is ignored | His instruction. Reaching a state now needs a code change (open question 32) |
 
 ---
 
@@ -581,7 +600,7 @@ Clusters on v12 release-gate: **CL-01** `failed` (SC-004), why `the same criteri
 - **G5** No pattern for a decision record, a policy editor or a hand-off drawer. (The decision record and policy editor were removed 16 Nov 2026; the hand-off drawer gap stands.)
 - **G6** `topbar.md` §2 has no row for Rook or Agent Assurance (quota modules, product buttons).
 - **G7** `platform-sidebar.md`'s list has no Agent Assurance entry.
-- **G8** No chart guidance beyond `LTProgressBar` (the trend and the security grid were composed from it; both removed 16 Nov 2026).
+- **G8** (16 Nov 2026: the context graph is an SVG composite for the same reason.) No chart guidance beyond `LTProgressBar` (the trend and the security grid were composed from it; both removed 16 Nov 2026).
 - **G9** (Security removed 16 Nov 2026.) No framework mapping (OWASP LLM, OWASP Agentic, MITRE ATLAS) for refund-desk's patterns in any source; the report's `redteam_coverage` rows are IDs such as `owasp:llm01` (results doc).
 - **G10** `LTInlineMessage` documents no text prop (children used, as in the project listing). (was: "the LTDrawer look-alike has no footer slot". Corrected Nov 11, 2026: the look-alike now takes the documented `footerContent` and `showFooter`.)
 - **G11** Look-alike props not in `data/components.json` (PROTO-5 audit, §7.1).
@@ -641,6 +660,7 @@ Props the look-alikes take that `COMPONENTS.md` does not document, all carried o
 | D25 | Runs filters: Status, Version, Started by, mapping Test Runs' Status, Tags and Creator | Tags: Rook runs have none |
 | D26 | The scenario pane filters by verdict | Search alone: the brief asks for Unable to Verify to be filterable wherever verdicts appear |
 | D27 | The header's Reason and Assigned to are action menus that set every open criterion at once, with a toast; each footer's selects show its own value. From 16 Nov 2026 (answers) the footer's selects are drafts saved by Confirm, while the header's menus still save at once: picking from a menu is the action | Selects showing a shared value: they need a third state for mixed values |
+| D28 | The context graph is hand-laid for refund-desk's four nodes: each edge a diagonal then a straight run into its target, with its label above the straight run, as the screenshot draws them; parallel edges into one node sit 28px apart | Straight lines with labels on them: the first build had labels crossed by the parallel line (caught in the browser) |
 | D19 | **Last 7 days** in Triage counts runs by date; in the mock data it holds the same two v12 runs as **This version** | Faking an older failure to make the switch look different |
 
 ---
@@ -794,6 +814,10 @@ New, from this build:
 | 26 | Should **Confirm** commit a draft reason and assignee (selects held until Confirm), rather than open the hand-off for the reason? (C44) **Answered 16 Nov 2026 (Rajat):** Confirm saves both values; a second button, **View Next Step**, opens the hand-off |
 | 27 | Keep a note for **Accepted risk** only, so Overview can show why the risk was accepted? (C45) |
 | 28 | Should Unable to Verify scenarios carry the same header menus, footer and banner as failed ones? Built that way (D21, D22) **Answered 16 Nov 2026 (Rajat):** yes |
+| 30 | What does the product's legend item **calls not read** mean, and what does a dashed node border show? (C51) |
+| 31 | Should the graph name each edge's tools on the line, rather than on hover? |
+| 32 | Should the prototype states come back some other way (a URL flag, a hidden menu), now the bar is gone? (C52) |
+| 33 | The Runs row shows the local run ID (`2026-11-10T13-48-21Z`), which repeats the date beside it; the hosted ID format is `[TO FILL]`. Keep it, drop it from the row, or show a hosted-ID placeholder? |
 | 29 | Failure clusters analysis and Failures by tool exist on the product's run page. With the run page gone, do they move to the run header, or leave the prototype? (C49) **Answered 16 Nov 2026 (Rajat):** drop them |
 | 25 | Keep the v10 to v12 runs and v11's compromised SC-006 (scope cut), or rebuild to build brief §6.3's 4 runs on v12 with SC-006 compromised in v12 smoke? (C35) **Answered 16 Nov 2026 (Rajat):** rebuild the brief's four v12 runs |
 
@@ -802,6 +826,8 @@ New, from this build:
 ## 11. Prototype controls
 
 The dashed **Prototype** bar in the top bar is not part of the design.
+
+*Removed 16 Nov 2026 (Rajat: round 3).* The bar and its four controls (C52). Earlier wording:
 
 - **State:** With blockers (default), Clear, Incomplete run, Awaiting a shared run, Empty organization, Loading, Error (16 Nov 2026). *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier: Blocked, Meets policy, Awaiting a policy, Incomplete run, Awaiting a shared run, Empty organization, Loading, Error.
 - **Shell:** Platform, Standalone.
@@ -837,3 +863,4 @@ The dashed **Prototype** bar in the top bar is not part of the design.
 - **v2 changes, Nov 16, 2026:** Rajat's list (§1.4), as a second commit on `scope-cut-2026-11-16`. Projects shows `Updated`; Agents and Runs are house rows with search, filters, status, date and time and the results bar; tabs Overview, Runs, Coverage, Triage, Setup; the run detail page is gone and a run opens on its first scenario, laid out as the Test Instances listing (run header and summary, scenario pane, scenario meta, banner, Overview, Acceptance criteria and Evidence tabs, evidence on the page); light code blocks; Reason, Assigned to, bug and Confirm on open criteria; Note removed; every criterion expanded. Conflicts C37 to C49, decisions D20 to D27, gap G12, open questions 26 to 29. Verified on the dev server and the production build. Not pushed or deployed.
 - **v2 answers, Nov 16, 2026:** Rajat's answers (§1.5), a third commit on `scope-cut-2026-11-16`. The data holds build brief §6.3's four v12 runs (§5.4; the v10 and v11 runs are removed, C35, C50); Confirm saves the footer's Reason and Assigned to drafts and **View Next Step** opens the hand-off (C44, §9.13); D21 and D22 confirmed; Failure clusters analysis and Failures by tool stay dropped (C49). `npm run check` asserts the four runs, the compromised SC-006 in smoke and 9 of 12 untriaged. Then merged into `main` and deployed, on Rajat's "update the prototype to the latest changes".
   - Deployed Nov 16, 2026: `main` fast-forwarded to `9cb1cac` and pushed; `gh-pages` at `b562f04`, bundle `index-Dk5zw0TI.js`, built by GitHub Pages at 10:21 UTC. Checked live at https://rajat-lt.github.io/rook-decision-surface-prototype/: the four runs, Triage 9 untriaged, v11 awaiting a shared run, the old Security URL outside the prototype, 0 console errors.
+- **v2 round 3, Nov 16, 2026:** Rajat's round 3 (§1.6). Evidence shows its four parts in one column, without the inner tabs; the scenario's sides are 24px and its width uncapped; the prototype bar left the top bar (C52); Overview gains the context graph with View Full Spec and View Findings (§4.17, C51, D28). Verified on the dev server and the production build; full screen calls the browser's Fullscreen API, which the in-app browser pane leaves pending, so it was not seen working there.

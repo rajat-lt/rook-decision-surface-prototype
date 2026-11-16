@@ -3,7 +3,7 @@
 A working prototype of Rook's hosted web UI (rook.lambdatest.com) redesigned as a **decision surface**: QA engineers, QA leads and engineering leaders make release decisions in the browser, and every next step hands off to the terminal with the exact `rook` command, its coding-agent prompt, and its side effects stated first. **The terminal acts, the browser decides.** Built from design-context with mock data only.
 
 - **Live:** https://rajat-lt.github.io/rook-decision-surface-prototype/
-- **Spec:** [`rook-decision-surface.md`](rook-decision-surface.md) (house format: brief, sources, structure, behaviour and states, mock data, conflicts C1 to C50, gaps G1 to G12, decisions D1 to D27, copy finalists, open questions, ship checklist)
+- **Spec:** [`rook-decision-surface.md`](rook-decision-surface.md) (house format: brief, sources, structure, behaviour and states, mock data, conflicts C1 to C52, gaps G1 to G12, decisions D1 to D28, copy finalists, open questions, ship checklist)
 - **Scope cut (16 Nov 2026):** [`../rook-ux/rook-prototype-scope-cut.md`](../rook-ux/rook-prototype-scope-cut.md) removed run comparison, Security, the release policy and Record Decision. The removed parts stay described below, each marked.
 - **Inputs:** the build brief and the journeys doc (*Rook: primary UX journeys and rationale*, Nov 11, 2026)
 
@@ -17,7 +17,7 @@ Start at **Agent Overview** (`#/p/web-app/a/refund-desk/overview`): the version'
 
 *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier wording: Start at **Agent Overview** (`#/p/web-app/a/refund-desk/overview`): the version's call in words, its proof ledger, the ranked blockers, what changed since v11, the trend and the decision record.
 
-The dashed **Prototype** bar in the top bar is not part of the design:
+The prototype opens With blockers, in the Platform shell, as the QA engineer. *Removed 16 Nov 2026 (Rajat: round 3).* The dashed **Prototype** bar and its controls (spec C52). Earlier wording: The dashed **Prototype** bar in the top bar is not part of the design:
 
 - **State:** With blockers (default), Clear, Incomplete run, Awaiting a shared run, Empty organization, Loading, Error. *Removed 16 Nov 2026 (Rajat: scope cut).* Earlier states: Blocked (default), Meets policy, Awaiting a policy, Incomplete run, Awaiting a shared run, Empty organization, Loading, Error.
 - **Shell:** Platform (the LambdaTest rail and top bar) or Standalone (no rail), journeys doc question 10.
@@ -87,6 +87,14 @@ Rajat's answers to the open questions (spec §1.5):
 | 29 · Failure clusters and Failures by tool? | Dropped with the run page. Each scenario's banner keeps its cluster and why |
 
 Still open: Recorded and Test runs tabs (23), the Clear state's 2 blockers (24), a note for Accepted risk (27).
+
+## Round 3 (16 Nov 2026)
+
+| Where | What changed |
+|---|---|
+| Top bar | The dashed prototype bar is gone. The other states stay in the code with no control (spec C52) |
+| Overview | A **Context** section after Blockers: the context graph (refund-desk, order-lookup, billing, crm; writes in red, read only in ink, unknown dashed), zoom and full screen, the checkpoint, **View Full Spec** and **View Findings** (spec §4.17). The graph is read from the sample's own files, since no explore record of refund-desk exists (spec C51) |
+| Scenario page | **Evidence** shows Request, Response, Verdict and Artefacts one after another, without the inner tabs; the scenario's sides are 24px, its right edge level with **View Plan** |
 
 ## Run it
 

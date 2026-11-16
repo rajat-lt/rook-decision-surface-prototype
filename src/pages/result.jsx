@@ -11,7 +11,7 @@ import {
   cx, LTButton, LTIconButton, LTTag, LTLink, LTCodeBlock, LTCopyToClipboard, LTInputBox, LTInlineMessage, LTBlankSlate,
   LTCounterLabel, LTFlash, LTProgressBar, LTTestStatusLabel, announce,
 } from '../lt.jsx'
-import { LTSegmentedControl, LTSelect, LTTabNav, LTDrawer, LTUnderlineNav, LTActionMenu, useToast } from '../overlays.jsx'
+import { LTSegmentedControl, LTSelect, LTDrawer, LTUnderlineNav, LTActionMenu, useToast } from '../overlays.jsx'
 import { useStore, nowMs } from '../store.jsx'
 import { useHandoff, HANDOFF } from '../handoff.jsx'
 import { FEATURE, PEOPLE, DISPOSITIONS, PROFILES, revisionAt } from '../data.js'
@@ -63,8 +63,9 @@ export function ResultPage({ route }) {
   const d = ds.find(x => x.scenario === route.scenario) ?? ds[0]
   const q = route.q
   // v1 links carried ?tab= for the evidence drawer; they open the Evidence tab now.
-  const view = VIEWS.includes(q.view) ? q.view : FILES.includes(q.tab) ? 'evidence' : 'overview'
-  const file = FILES.includes(q.file) ? q.file : FILES.includes(q.tab) ? q.tab : 'request'
+  const view = VIEWS.includes(q.view) ? q.view : FILES.includes(q.tab) || FILES.includes(q.file) ? 'evidence' : 'overview'
+  // A v1 ?tab= or a ?file= link scrolls to that file in the Evidence tab.
+  const file = FILES.includes(q.file) ? q.file : FILES.includes(q.tab) ? q.tab : null
   return (
     <div className="result">
       <RunHeader run={run} drawer={q.drawer} />
@@ -215,6 +216,7 @@ function ScenarioPane({ run, ds, current, view }) {
 /* ---------- right: the selected scenario ---------- */
 function ScenarioDetail({ run, d, view, file, filter }) {
   const st = useStore()
+  useEffect(() => { if (view === 'evidence' && file) document.getElementById(`ev-${file}`)?.scrollIntoView({ block: 'start' }) }, [view, file])
   const toast = useToast()
   const handoff = useHandoff()
   const [snap, setSnap] = useState(false)
@@ -291,7 +293,7 @@ function ScenarioDetail({ run, d, view, file, filter }) {
           </>
         )}
         {view === 'criteria' && <Criteria run={run} d={d} filter={filter} unavailable={st.proto === 'error'} />}
-        {view === 'evidence' && <Evidence run={run} d={d} file={file} />}
+        {view === 'evidence' && <Evidence run={run} d={d} />}
       </div>
 
       <LTDrawer isOpen={snap} onClose={() => setSnap(false)} width={640} title={`${s.id} as ${run.name} ran it`}
@@ -487,9 +489,9 @@ function TriageFooter({ run, d, c }) {
   )
 }
 
-/* ---------- evidence on the page (Rajat, 16 Nov 2026: no drawer). The
-   files sit under an LTTabNav, the second tab layer, below the scenario's
-   LTUnderlineNav (guidelines/ltunderlinenav.md). ---------- */
+/* ---------- evidence on the page (Rajat, 16 Nov 2026: no drawer, and no
+   second tab layer). Request, Response, Verdict and Artefacts follow one
+   another in the Evidence tab, each a heading and its file. ---------- */
 export function CodeFile({ name, text }) {
   return (
     <LTCodeBlock title={name} headerActions={<LTCopyToClipboard textToCopy={text} copyAriaLabel={`Copy ${name}`} copiedAriaLabel={`${name} copied`} size="small" />}>
@@ -497,37 +499,35 @@ export function CodeFile({ name, text }) {
     </LTCodeBlock>
   )
 }
-function Evidence({ run, d, file }) {
-  const [artefact, setArtefact] = useState(null)
-  useEffect(() => { setArtefact(null) }, [file])
+function Evidence({ run, d }) {
   if (!d.status) return <p className="body muted">Missing from this attempt: request, response and verdict.</p>
-  const files = { request: ['request.json', requestJson(run, d)], response: ['response.json', responseJson(run, d)], verdict: ['verdict.yaml', verdictYaml(run, d)] }
+  const files = [
+    ['request', 'Request', 'request.json', requestJson(run, d)],
+    ['response', 'Response', 'response.json', responseJson(run, d)],
+    ['verdict', 'Verdict', 'verdict.yaml', verdictYaml(run, d)],
+  ]
   const artefacts = [
     { name: 'collect.json', kind: 'Evidence artefact', text: collectJson(run, d) },
     { name: 'judge-working.json', kind: 'Evidence artefact', text: JSON.stringify({ scenario_id: d.scenario, note: "The judge's working notes [mock]." }, null, 2) },
   ]
   return (
-    <section className="rc__sec" aria-label="Evidence">
-      <LTTabNav ariaLabel="Evidence files" idPrefix="ev" activeTab={file} onSelect={id => setQuery({ file: id === 'request' ? null : id, tab: null })}
-        items={[{ id: 'request', label: 'Request' }, { id: 'response', label: 'Response' }, { id: 'verdict', label: 'Verdict' }, { id: 'artefacts', label: 'Artefacts' }]} />
-      <div id="ev-panel" role="tabpanel" aria-labelledby={`ev-tab-${file}`} className="ev-panel">
-        {file !== 'artefacts' ? <CodeFile name={files[file][0]} text={files[file][1]} /> : artefact ? (
-          <>
-            <LTButton variant="invisible" size="small" label="Back to Artefacts" onClick={() => setArtefact(null)} />
-            <CodeFile name={artefact.name} text={artefact.text} />
-          </>
-        ) : (
-          <ul className="artefacts">
-            {artefacts.map(a => (
-              <li key={a.name} className="artefact">
-                <span><span className="mono-strong">{a.name}</span> <span className="muted">· {a.kind}</span></span>
-                <LTButton variant="outline" size="small" label="View" ariaLabel={`View ${a.name}`} onClick={() => setArtefact(a)} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </section>
+    <div className="evidence-list">
+      {files.map(([id, label, name, text]) => (
+        <section key={id} id={`ev-${id}`} className="rc__sec" aria-labelledby={`ev-${id}-h`}>
+          <h3 id={`ev-${id}-h`} className="sec-h">{label}</h3>
+          <CodeFile name={name} text={text} />
+        </section>
+      ))}
+      <section id="ev-artefacts" className="rc__sec" aria-labelledby="ev-artefacts-h">
+        <h3 id="ev-artefacts-h" className="sec-h">Artefacts <LTCounterLabel count={artefacts.length} /></h3>
+        {artefacts.map(a => (
+          <div key={a.name} className="rc__sec">
+            <p className="caption">{a.kind}</p>
+            <CodeFile name={a.name} text={a.text} />
+          </div>
+        ))}
+      </section>
+    </div>
   )
 }
 

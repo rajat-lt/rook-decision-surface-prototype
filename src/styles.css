@@ -586,12 +586,6 @@ kbd {
 .crumbs li:last-child { flex: 0 1 auto; min-width: 0; }
 .crumb.current { color: var(--fg-default); font-weight: var(--weight-bold); }
 a.crumb.current:hover { color: var(--fg-default); }
-.proto-bar {
-  flex: none; display: flex; align-items: center; gap: var(--space-2);
-  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-2);
-  border: 1px dashed var(--border-default); border-radius: var(--radius-2); background: var(--canvas-default);
-}
-.proto-bar__label { font-size: var(--font-12); font-weight: var(--weight-bold); color: var(--fg-muted); }
 .content { flex: 1; min-height: 0; overflow: auto; background: var(--canvas-default); }
 
 /* --- page frame: centred column, 112px each side (guidelines/README.md §2) --- */
@@ -696,7 +690,7 @@ a.crumb.current:hover { color: var(--fg-default); }
 .srow__triage { font-size: var(--font-12); line-height: var(--lh-12); color: var(--fg-muted); }
 .srow__triage.is-open { color: var(--attention-fg); font-weight: var(--weight-semibold); }
 .result__centre { flex: 1; min-width: 0; overflow: auto; }
-.rc { max-width: 1080px; padding: var(--space-6) var(--space-8) var(--space-12); display: flex; flex-direction: column; gap: var(--space-6); }
+.rc { padding: var(--space-6) var(--space-6) var(--space-12); display: flex; flex-direction: column; gap: var(--space-6); }
 .rc__head { display: flex; flex-direction: column; gap: var(--space-2); }
 .rc__title-row { display: flex; align-items: flex-start; gap: var(--space-3); justify-content: space-between; }
 .rc__title { overflow-wrap: anywhere; }
@@ -885,3 +879,36 @@ a.crumb.current:hover { color: var(--fg-default); }
 .lt-flash__icon { margin-top: 2px; flex: none; }
 .lt-code--light .tok-comment { color: var(--fg-muted); }
 .triage-foot__error { margin-top: var(--space-2); }
+.evidence-list { display: flex; flex-direction: column; gap: var(--space-6); }
+
+/* --- context graph (Overview, 16 Nov 2026) --- */
+.ctxmap { margin: 0; border: 1px solid var(--border-default); border-radius: var(--radius-2); overflow: hidden; background: var(--canvas-default); }
+.ctxmap__stage { position: relative; }
+.ctxmap__canvas { height: 360px; overflow: auto; display: flex; background: var(--canvas-subtle); }
+.ctxmap__svg { display: block; flex: none; margin: auto; }
+.ctxmap__tools { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 1; display: flex; gap: var(--space-2); }
+.ctxmap__tools .lt-iconbtn { background: var(--canvas-default); }
+.ctxmap.is-full { display: flex; flex-direction: column; border-radius: 0; }
+.ctxmap.is-full .ctxmap__stage { flex: 1; min-height: 0; }
+.ctxmap.is-full .ctxmap__canvas { height: 100%; }
+.ctxmap__legend { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-5); padding: var(--space-2) var(--space-4); border-top: 1px solid var(--border-default); font-size: var(--font-12); line-height: var(--lh-12); color: var(--fg-muted); }
+.ctxmap__key { display: inline-flex; align-items: center; gap: var(--space-2); }
+.ctx-edge polyline, .ctx-key { fill: none; stroke-width: 1.5; stroke-linejoin: round; }
+.ctx-edge--write polyline, line.ctx-edge--write { stroke: var(--danger-fg); }
+.ctx-edge--read polyline, line.ctx-edge--read { stroke: var(--fg-default); }
+.ctx-edge--unknown polyline, line.ctx-edge--unknown { stroke: var(--fg-muted); stroke-dasharray: 5 4; }
+.ctx-arrow--write { fill: var(--danger-fg); }
+.ctx-arrow--read { fill: var(--fg-default); }
+.ctx-arrow--unknown { fill: var(--fg-muted); }
+.ctx-edge__label { font-size: 12px; paint-order: stroke; stroke: var(--canvas-subtle); stroke-width: 4px; stroke-linejoin: round; }
+.ctx-edge--write .ctx-edge__label { fill: var(--danger-fg); }
+.ctx-edge--read .ctx-edge__label { fill: var(--fg-default); }
+.ctx-edge--unknown .ctx-edge__label { fill: var(--fg-muted); }
+.ctx-node rect { fill: var(--canvas-default); stroke: var(--border-default); stroke-width: 1; }
+.ctx-node--agent rect { stroke: var(--accent-emphasis); }
+.ctx-node.is-root rect { stroke-width: 2.5; }
+.ctx-node__name { font-size: 14px; fill: var(--fg-default); }
+.ctx-node__kind { font-size: 11px; letter-spacing: 0.08em; fill: var(--fg-muted); }
+.ctx-node--agent .ctx-node__kind { fill: var(--accent-fg); }
+.ctx-check { margin: var(--space-3) 0 0; font-size: var(--font-12); line-height: var(--lh-12); color: var(--fg-muted); }
+.ctx-links { display: flex; gap: var(--space-2); margin-top: var(--space-2); }

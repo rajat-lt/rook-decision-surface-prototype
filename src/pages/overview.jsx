@@ -3,11 +3,14 @@
 import React, { useMemo, useState } from 'react'
 import { Link as LinkIcon, Check } from 'lucide-react'
 import { LTButton, LTTag, LTLink, LTBlankSlate, LTInlineMessage, announce } from '../lt.jsx'
-import { LTSelect } from '../overlays.jsx'
+import { LTSelect, LTDrawer } from '../overlays.jsx'
 import { AgentFrame } from '../App.jsx'
 import { useStore } from '../store.jsx'
 import { useHandoff, HANDOFF } from '../handoff.jsx'
-import { VERSIONS } from '../data.js'
+import { VERSIONS, CONTEXT } from '../data.js'
+import { SAMPLE_FILES } from '../sample-files.js'
+import { ContextMap } from '../context.jsx'
+import { CodeFile } from './result.jsx'
 import { readiness, totals, criteriaStats, behaviour, gatingRun, KIND, pct, triageKey } from '../model.js'
 import { LedgerTile, PinnedLine, ToolName, PanelState, Person } from '../verdict.jsx'
 import { href, setQuery } from '../router.js'
@@ -91,6 +94,7 @@ export function OverviewPage({ route }) {
 
       <Ledger version={version} run={run} panel={panel} />
       <Blockers version={version} s={s} panel={panel} />
+      <Context version={version} panel={panel} />
     </AgentFrame>
   )
 }
@@ -208,5 +212,42 @@ function BlockerRow({ b, rank, version, triage, onHandoff }) {
         {next}
       </div>
     </li>
+  )
+}
+
+/* ---------- context (Rajat, 16 Nov 2026: the context graph on Overview too,
+   with View Full Spec and View Findings, as the product's Context section
+   shows them). The checkpoint digest identifies the recorded context; it
+   says nothing about what is deployed now (web UI doc). ---------- */
+function Context({ version, panel }) {
+  const [drawer, setDrawer] = useState(null)
+  return (
+    <section className="panel" aria-labelledby="ctx-ov-h">
+      <div className="panel__head">
+        <h2 id="ctx-ov-h" className="sec-h">Context</h2>
+        <span className="caption">What the agent can call, from its definition. Scenario results show what it did call.</span>
+      </div>
+      {panel ? <PanelState state={panel} object="the context" rows={3} /> : (
+        <>
+          <ContextMap version={version} />
+          <p className="ctx-check">Checkpoint <code className="mono-inline" title={CONTEXT.checkpoint}>{CONTEXT.checkpoint.slice(0, 15)}</code></p>
+          <div className="ctx-links">
+            <LTButton variant="invisible" size="small" label="View Full Spec" onClick={() => setDrawer('spec')} />
+            <LTButton variant="invisible" size="small" label="View Findings" onClick={() => setDrawer('findings')} />
+          </div>
+        </>
+      )}
+      <LTDrawer isOpen={!!drawer} onClose={() => setDrawer(null)} width={640}
+        title={drawer === 'spec' ? `Full spec · ${version}` : 'Findings'}
+        subTitle={drawer === 'spec' ? 'The agent definition saved for this version' : undefined}>
+        {drawer === 'spec' && <CodeFile name=".claude/agents/refund-desk.md" text={SAMPLE_FILES['.claude/agents/refund-desk.md']} />}
+        {drawer === 'findings' && (
+          <div className="state-card">
+            <p className="baseline__h">No findings recorded</p>
+            <p className="body muted">The product's own wording. Read an empty findings record as a gap to check.</p>
+          </div>
+        )}
+      </LTDrawer>
+    </section>
   )
 }

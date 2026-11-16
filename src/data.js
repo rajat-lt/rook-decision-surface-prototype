@@ -11,7 +11,6 @@ export const PEOPLE = {
   oppenheimer: { id: 'oppenheimer', name: 'Oppenheimer', initials: 'O', role: 'Engineering leader' },
   mahendra: { id: 'mahendra', name: 'Mahendra Damodardas Baahubali', initials: 'MB', role: 'QA engineer' },
 }
-export const VIEWERS = ['ritika', 'gabbar', 'oppenheimer']
 
 // The prototype's "now". Relative times count back from it.
 export const NOW = Date.parse('2026-11-11T11:00:00Z')
@@ -531,6 +530,42 @@ export const SEED_TRIAGE = {
   '2026-11-10T09-14-03Z|SC-009|C3': { disposition: 'Harness gap', owner: 'ritika', note: "The staging hook drops issue_refund's arguments.", setBy: 'gabbar', setAt: '2026-11-11T09:00:00Z' },
   '2026-11-10T09-14-03Z|SC-009|CALL-01': { disposition: 'Harness gap', owner: 'ritika', note: '', setBy: 'gabbar', setAt: '2026-11-11T09:00:00Z' },
   '2026-11-09T07-15-02Z|SC-008|CALL-01': { disposition: 'Flaky', owner: 'mahendra', note: '', setBy: 'gabbar', setAt: '2026-11-10T08:30:00Z' },
+}
+
+/* ---------- the agent's context graph (16 Nov 2026) ----------
+   What refund-desk can call, drawn the way explore records calls in the
+   industry samples' agent.yaml (`to`, `kind`, `write`, `via`), one edge per
+   target and access. No explore record of refund-desk is in the samples, so
+   each entry is read from the sample's own files [derived] (spec C51):
+   refund-desk.md (`mcp: billing, crm`), order-lookup.md ("Read-only
+   subagent", `mcp: billing`), how-it-works.html ("subagent order-lookup",
+   "tools 5 (3 read · 2 write)"), and mcp/lib.mjs ("Newline-delimited
+   JSON-RPC 2.0 over stdio"). Orders and notes live in memory, so there is no
+   database node; the definition names no model provider, so there is no
+   provider node. A definition graph, not a runtime trace (web UI doc).
+   checkpoint [mock]: sha256 of the sample's definition files concatenated,
+   not Rook's subtree_digest. */
+const STDIO = 'JSON-RPC 2.0 over stdio'
+export const CONTEXT = {
+  root: 'refund-desk',
+  checkpoint: 'sha256:6782e8e3712f01329f9f0c74b2dcdf30ab2bcb9489d4cff1649aebdb504158fc',
+  nodes: [
+    { id: 'refund-desk', kind: 'agent', x: 40, y: 152 },
+    { id: 'order-lookup', kind: 'agent', x: 420, y: 24 },
+    { id: 'billing', kind: 'mcp', x: 760, y: 120 },
+    { id: 'crm', kind: 'mcp', x: 760, y: 248 },
+  ],
+  // points: the drawn route (a diagonal, then a straight run into the target,
+  // as the screenshot draws them); label: where the via text sits, above the
+  // straight run. Hand-laid for this graph [prototype layout].
+  calls: [
+    { from: 'refund-desk', to: 'order-lookup', write: false, via: 'subagent', tools: [], points: [[240, 166], [350, 52], [418, 52]], label: [384, 44] },
+    { from: 'refund-desk', to: 'billing', write: true, via: STDIO, tools: ['issue_refund'], points: [[240, 172], [570, 134], [758, 134]], label: [664, 126] },
+    { from: 'refund-desk', to: 'billing', write: false, via: STDIO, tools: ['get_order', 'get_refund_status'], points: [[240, 180], [570, 162], [758, 162]], label: [664, 154] },
+    { from: 'refund-desk', to: 'crm', write: true, via: STDIO, tools: ['add_note'], points: [[240, 188], [570, 262], [758, 262]], label: [664, 254] },
+    { from: 'refund-desk', to: 'crm', write: false, via: STDIO, tools: ['read_notes'], points: [[240, 196], [570, 290], [758, 290]], label: [664, 282] },
+    { from: 'order-lookup', to: 'billing', write: false, via: STDIO, tools: ['get_order'], points: [[620, 52], [860, 52], [860, 118]], label: [740, 44] },
+  ],
 }
 
 /* ---------- other agents in the project (Rook's public samples; spec §5.1) ---------- */
